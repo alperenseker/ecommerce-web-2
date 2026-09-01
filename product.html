@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Товар — NOVATECH</title>
+    <meta name="description" content="Характеристики, наличие и цена товара.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body data-page="product">
+
+<div id="site-header"></div>
+
+<main class="container">
+
+    <nav class="crumbs" aria-label="breadcrumb">
+        <a href="index.html" data-i18n="common.home">Главная</a>
+        <span class="crumbs__sep">/</span>
+        <a href="shop.html" data-i18n="shop.title">Каталог</a>
+        <span class="crumbs__sep">/</span>
+        <span class="crumbs__current" id="crumb-product">…</span>
+    </nav>
+
+    <!-- İçerik JS ile basılır; ürün gelene kadar iskelet görünür. -->
+    <div id="product-root"></div>
+
+    <section class="section" id="related-section" hidden>
+        <div class="section-head">
+            <h2 class="section-head__title" data-i18n="product.related">Похожие товары</h2>
+        </div>
+        <div class="grid grid--auto products" id="related-products"></div>
+    </section>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Каталог — NOVATECH</title>
+    <meta name="description" content="Полный каталог промышленной фурнитуры: механизмы, петли, замки, комплектующие.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body data-page="shop">
+
+<div id="site-header"></div>
+
+<main class="container">
+
+    <nav class="crumbs" aria-label="breadcrumb">
+        <a href="index.html" data-i18n="common.home">Главная</a>
+        <span class="crumbs__sep">/</span>
+        <span class="crumbs__current" id="crumb-current" data-i18n="shop.title">Каталог</span>
+    </nav>
+
+    <div class="layout-aside">
+
+        <!-- ============ KENAR ÇUBUĞU ============ -->
+        <aside class="aside" id="shop-aside">
+
+            <div class="flex items-c justify-b" style="padding-top:12px">
+                <h2 class="card__title" data-i18n="shop.filters">Фильтры</h2>
+                <button class="btn btn--plain btn--sm" type="button" data-act="clear-filters"
+                        data-i18n="shop.clearFilters">Сбросить</button>
+            </div>
+
+            <div class="acc is-open">
+                <button class="acc__head" type="button" data-act="toggle-acc">
+                    <span data-i18n="shop.categories">Категории</span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="acc__body">
+                    <div class="tree" id="category-tree"></div>
+                </div>
+            </div>
+
+            <div class="acc is-open">
+                <button class="acc__head" type="button" data-act="toggle-acc">
+                    <span data-i18n="shop.price">Цена</span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="acc__body">
+                    <div class="price-range mb-3">
+                        <input class="input" type="number" id="price-min" min="0"
+                               data-i18n-attr="placeholder:shop.priceMin">
+                        <span>—</span>
+                        <input class="input" type="number" id="price-max" min="0"
+                               data-i18n-attr="placeholder:shop.priceMax">
+                    </div>
+                    <button class="btn btn--steel btn--sm btn--block" type="button" data-act="apply-price"
+                            data-i18n="shop.applyPrice">Применить</button>
+                    <div class="mt-4" id="price-presets"></div>
+                </div>
+            </div>
+
+            <div class="acc is-open">
+                <button class="acc__head" type="button" data-act="toggle-acc">
+                    <span data-i18n="shop.stock">Наличие</span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="acc__body flex-col gap-3">
+                    <label class="check">
+                        <input type="checkbox" id="filter-in-stock">
+                        <span class="check__box"></span>
+                        <span data-i18n="shop.inStockOnly">Только в наличии</span>
+                    </label>
+                    <label class="check">
+                        <input type="checkbox" id="filter-out-stock">
+                        <span class="check__box"></span>
+                        <span data-i18n="shop.outOfStock">Нет в наличии</span>
+                    </label>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- ============ ÜRÜNLER ============ -->
+        <section>
+
+            <div class="toolbar">
+                <div class="flex items-c gap-3">
+                    <button class="btn btn--ghost btn--sm filter-fab" type="button" data-act="toggle-filters">
+                        <span data-i18n="shop.filters">Фильтры</span>
+                    </button>
+                    <span class="toolbar__count" id="result-count"></span>
+                </div>
+
+                <div class="toolbar__right">
+                    <select class="select" id="sort-select" aria-label="sort">
+                        <option value="default"    data-i18n="shop.sortDefault">По умолчанию</option>
+                        <option value="price-low"  data-i18n="shop.sortPriceLow">Цена ↑</option>
+                        <option value="price-high" data-i18n="shop.sortPriceHigh">Цена ↓</option>
+                        <option value="date"       data-i18n="shop.sortNewest">Новинки</option>
+                        <option value="popularity" data-i18n="shop.sortPopular">Популярные</option>
+                        <option value="rating"     data-i18n="shop.sortRating">По рейтингу</option>
+                    </select>
+
+                    <select class="select" id="pagesize-select" aria-label="per page"></select>
+
+                    <div class="viewtoggle">
+                        <button type="button" data-act="view-grid" class="is-active" aria-label="grid">
+                            <i class="ico"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></i>
+                        </button>
+                        <button type="button" data-act="view-list" aria-label="list">
+                            <i class="ico"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="active-chips" class="flex wrap gap-2 mb-4"></div>
+
+            <div class="grid grid--auto products" id="products"></div>
+
+            <div class="mt-6" id="pagination"></div>
+
+        </section>
+    </div>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/loader.js"></script>
+</body>
+</html>

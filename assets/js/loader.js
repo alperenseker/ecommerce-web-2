@@ -1,0 +1,119 @@
+/* ============================================================
+   loader.js — BETİK YÜKLEYİCİ
+   ------------------------------------------------------------
+   Her HTML sayfasında 30 tane <script> satırı tekrarlanmasın diye
+   dosya listesi TEK YERDE durur. Sayfalar yalnız şunu yazar:
+
+       <script src="assets/js/loader.js"></script>
+
+   ve <body data-page="shop"> değerine göre o sayfanın betiği de
+   listeye eklenir.
+
+   SIRA GARANTİSİ: dinamik olarak eklenen betikler varsayılan
+   olarak `async` çalışır ve sıraları karışır. `script.async = false`
+   demek "ekleme sırasına göre çalıştır" anlamına gelir (standart
+   'ordered async' deseni) — bağımlılık sırası böyle korunur.
+
+   ÜRETİM NOTU: canlıya çıkarken bu dosyaların birleştirilip
+   küçültülmesi (concat + minify) önerilir; liste aşağıda hazır
+   durur, bir yapı betiği doğrudan bunu okuyabilir.
+   ============================================================ */
+
+(function () {
+    'use strict';
+
+    /* Kendi yolunu bulur: site alt klasörde yayınlansa da çalışsın. */
+    var self = document.currentScript;
+    var base = self ? self.src.replace(/loader\.js.*$/, '') : 'assets/js/';
+
+    /* Önbellek kırıcı: dosya değiştiğinde bu sayı artırılır. */
+    var VERSION = '1.0.0';
+
+    /* ---------- ÇEKİRDEK (sıra önemlidir) ---------- */
+    var CORE = [
+        /* 1. temel: isim alanı ve saf yardımcılar */
+        'core/config.js',
+        'core/utils.js',
+        'core/format.js',
+        'core/storage.js',
+        'core/bus.js',
+
+        /* 2. ağ */
+        'core/http.js',
+        'core/api.js',
+
+        /* 3. dil — sözlükler i18n.js'ten SONRA gelmeli */
+        'i18n/i18n.js',
+        'i18n/tr.js',
+        'i18n/en.js',
+        'i18n/ru.js',
+        'i18n/kz.js',
+
+        /* 4. arayüz temelleri (servisler bildirim/pencere kullanır) */
+        'ui/icons.js',
+        'ui/toast.js',
+        'ui/modal.js',
+
+        /* 5. veri katmanı */
+        'data/product-model.js',
+        'data/idb.js',
+        'data/catalog.js',
+
+        /* 6. iş servisleri */
+        'services/auth.service.js',
+        'services/cart.service.js',
+        'services/wishlist.service.js',
+        'services/compare.service.js',
+        'services/address.service.js',
+        'services/order.service.js',
+        'services/review.service.js',
+
+        /* 7. arayüz bileşenleri */
+        'ui/product-card.js',
+        'ui/actions.js',
+        'ui/drawer.js',
+        'ui/layout.js'
+    ];
+
+    /* ---------- SAYFA BETİKLERİ ----------
+       Anahtar = <body data-page="..."> değeri.
+       Değer bir dizi olabilir; büyük sayfalar parçalara bölünür ve
+       parçalar YAZILDIĞI SIRAYLA yüklenir. */
+    var PAGES = {
+        home:     'pages/home.js',
+        shop:     ['pages/shop-filters.js', 'pages/shop.js'],
+        product:  ['pages/product-gallery.js', 'pages/product.js'],
+        cart:     'pages/cart.js',
+        wishlist: 'pages/wishlist.js',
+        compare:  'pages/compare.js',
+        checkout: ['pages/checkout-address.js', 'pages/checkout.js'],
+        order:    'pages/order.js',
+        login:    ['pages/login-register.js', 'pages/login.js'],
+        account:  ['pages/account-orders.js', 'pages/account.js'],
+        content:  'pages/content.js'
+    };
+
+    var list = CORE.slice();
+
+    var pageName = document.body ? document.body.getAttribute('data-page') : null;
+    var pageScripts = pageName ? PAGES[pageName] : null;
+
+    if (pageScripts) {
+        list = list.concat(Array.isArray(pageScripts) ? pageScripts : [pageScripts]);
+    }
+
+    /* app.js DAİMA en son: her şeyin yüklendiğini varsayar. */
+    list.push('app.js');
+
+    var frag = document.createDocumentFragment();
+
+    list.forEach(function (path) {
+        var el = document.createElement('script');
+        el.src = base + path + '?v=' + VERSION;
+        el.async = false;          /* ← sıra garantisi */
+        frag.appendChild(el);
+    });
+
+    document.head.appendChild(frag);
+
+})();
