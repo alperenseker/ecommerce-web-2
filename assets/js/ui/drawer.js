@@ -22,13 +22,13 @@
         root = App.utils.el('div', { class: 'drawer', id: 'cart-drawer' });
         root.innerHTML =
             '<div class="drawer__backdrop" data-act="close-drawer"></div>' +
-            '<aside class="drawer__panel" role="dialog" aria-label="' + App.t('header.cart', 'Sepet') + '">' +
+            '<aside class="drawer__panel" role="dialog" aria-label="' + App.t('header.shoppingCart', 'Корзина покупок') + '">' +
                 '<div class="drawer__head">' +
-                    '<h3 class="card__title">' + App.t('header.cart', 'Sepet') +
+                    '<h3 class="card__title">' + App.t('header.shoppingCart', 'Корзина покупок') +
                         ' <span class="t-mut t-sm" id="drawer-count"></span>' +
                     '</h3>' +
                     '<button class="modal__close" type="button" data-act="close-drawer" aria-label="' +
-                        App.t('common.close', 'Kapat') + '">' + App.icon('close', 16) + '</button>' +
+                        App.t('header.close', 'Закрыть') + '">' + App.icon('close', 16) + '</button>' +
                 '</div>' +
                 '<div class="drawer__body" id="drawer-body"></div>' +
                 '<div class="drawer__foot" id="drawer-foot"></div>' +
@@ -53,15 +53,15 @@
         count.textContent = App.cart.isEmpty() ? '' : '(' + App.cart.count() + ')';
 
         if (!App.auth.isLoggedIn()) {
-            body.innerHTML = emptyHtml(App.t('cart.loginToView', 'Sepetinizi görmek için giriş yapın'),
-                                       'login.html', App.t('header.login', 'Giriş yap'));
+            body.innerHTML = emptyHtml(App.t('cart.loginToView', 'Войдите, чтобы увидеть корзину'),
+                                       'login.html', App.t('header.signIn', 'Войти'));
             foot.innerHTML = '';
             return;
         }
 
         if (App.cart.isEmpty()) {
-            body.innerHTML = emptyHtml(App.t('cart.empty', 'Sepetiniz boş'),
-                                       'shop.html', App.t('cart.continueShopping', 'Alışverişe devam et'));
+            body.innerHTML = emptyHtml(App.t('cart.messages.emptyCart', 'Ваша корзина пуста'),
+                                       'shop.html', App.t('cart.continueShopping', 'Продолжить покупки'));
             foot.innerHTML = '';
             return;
         }
@@ -81,18 +81,17 @@
         foot.innerHTML =
             (groups.length > 1
                 ? '<div class="alert alert--info t-xs mb-3">' + App.icon('info', 14) +
-                  '<span>' + App.t('checkout.willSplit', 'Sepetiniz {count} ayrı siparişe bölünecek.')
-                      .replace('{count}', groups.length) + '</span></div>'
+                  '<span>' + App.t('checkout.splitNote', '', { count: groups.length }) + '</span></div>'
                 : '') +
             '<div class="summary__total mb-4" style="border:0;padding:0;margin:0 0 16px">' +
-                '<span>' + App.t('common.total', 'Toplam') + '</span>' +
+                '<span>' + App.t('cart.total', 'Итого') + '</span>' +
                 '<b>' + App.fmt.price(App.cart.total()) + '</b>' +
             '</div>' +
             '<div class="flex-col gap-2">' +
                 '<a class="btn btn--primary btn--block" href="checkout.html">' +
-                    App.t('header.checkout', 'Ödemeye geç') + '</a>' +
+                    App.t('header.checkout', 'Оформить заказ') + '</a>' +
                 '<a class="btn btn--ghost btn--block" href="cart.html">' +
-                    App.t('header.viewCart', 'Sepete git') + '</a>' +
+                    App.t('header.viewCart', 'Просмотр корзины') + '</a>' +
             '</div>';
     }
 
@@ -113,7 +112,7 @@
                    '</div>' +
                    '<button class="btn btn--plain btn--sm btn--icon" type="button" ' +
                            'data-act="cart-remove" data-id="' + item.CartItemId + '" ' +
-                           'aria-label="' + App.t('cart.remove', 'Kaldır') + '">' +
+                           'aria-label="' + App.t('common.remove', 'Убрать') + '">' +
                        App.icon('trash', 14) +
                    '</button>' +
                '</div>';

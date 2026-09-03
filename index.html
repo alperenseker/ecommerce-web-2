@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NOVATECH — Промышленная фурнитура для профильных систем</title>
-    <meta name="description" content="Оконные и дверные механизмы, петли, замки и комплектующие. Со склада в Казахстане, по дилерским ценам.">
+    <title>FORES — Оконная и дверная фурнитура</title>
+    <meta name="description" content="Оконные и дверные механизмы, петли, замки и комплектующие. Со склада в Казахстане.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,108 +13,25 @@
     <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
-<body data-page="home">
+<body data-page="home" data-title-i18n="home.pageTitle">
 
 <div id="site-header"></div>
 
 <main>
 
-    <!-- ============ HERO ============ -->
+    <!-- ============ ÜST SLIDER ============
+         Üç sahne; içerik JS ile basılır (metinler home.slider1/2/3).
+         ============================================= -->
     <section class="container">
-        <div class="hero anim-in">
-            <div>
-                <span class="eyebrow" data-i18n="home.heroEyebrow">Промышленная фурнитура</span>
-                <h1 class="hero__title">
-                    <span data-i18n="home.heroTitle">Точная фурнитура для</span>
-                    <b data-i18n="home.heroTitleStrong">профильных систем</b>
-                </h1>
-                <p class="hero__text" data-i18n="home.heroText"></p>
-
-                <div class="hero__actions">
-                    <a class="btn btn--primary btn--lg" href="shop.html" data-i18n="home.heroCta">Каталог</a>
-                    <a class="btn btn--ghost btn--lg" href="login.html?mode=register" data-i18n="home.heroCta2">Стать дилером</a>
-                </div>
-
-                <div class="hero__stats">
-                    <div class="hero__stat">
-                        <b id="stat-products">—</b>
-                        <span data-i18n="home.statProducts">Товаров</span>
-                    </div>
-                    <div class="hero__stat">
-                        <b id="stat-categories">—</b>
-                        <span data-i18n="home.statCategories">Категорий</span>
-                    </div>
-                    <div class="hero__stat">
-                        <b>24/7</b>
-                        <span data-i18n="home.statSupport">Поддержка</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hero__visual">
-                <img src="assets/img/mock/hero-visual.svg" alt="" width="640" height="512">
-            </div>
-        </div>
+        <div class="hero anim-in" id="hero"></div>
     </section>
 
-    <!-- ============ AVANTAJLAR ============ -->
-    <section class="container section--tight">
-        <div class="perks" id="perks"></div>
-    </section>
-
-    <!-- ============ KATEGORİLER ============ -->
-    <section class="container section">
-        <div class="section-head">
-            <div>
-                <h2 class="section-head__title" data-i18n="home.categories">Категории</h2>
-                <p class="section-head__sub" data-i18n="home.categoriesSub"></p>
-            </div>
-            <a class="section-head__link" href="shop.html" data-i18n="common.viewAll">Смотреть все</a>
-        </div>
-        <div class="grid grid--6" id="categories-grid"></div>
-    </section>
-
-    <!-- ============ YENİ GELENLER ============ -->
-    <section class="container section--tight">
-        <div class="section-head">
-            <div>
-                <h2 class="section-head__title" data-i18n="home.newArrivals">Новинки</h2>
-                <p class="section-head__sub" data-i18n="home.newArrivalsSub"></p>
-            </div>
-            <a class="section-head__link" href="shop.html?sort=date" data-i18n="common.viewAll">Смотреть все</a>
-        </div>
-        <div class="grid grid--auto products" id="new-arrivals"></div>
-    </section>
-
-    <!-- ============ KAMPANYA ============ -->
-    <section class="container section--tight">
-        <div class="promo">
-            <div class="promo__card panel-metal">
-                <span class="promo__label" data-i18n="home.promoLabel"></span>
-                <h3 class="promo__title" data-i18n="home.promoTitle"></h3>
-                <p class="promo__text" data-i18n="home.promoText"></p>
-                <div><a class="btn btn--primary" href="login.html?mode=register" data-i18n="home.promoCta">Заявка</a></div>
-            </div>
-            <div class="promo__card promo__card--gold panel-metal">
-                <span class="promo__label" data-i18n="home.promo2Label"></span>
-                <h3 class="promo__title" data-i18n="home.promo2Title"></h3>
-                <p class="promo__text" data-i18n="home.promo2Text"></p>
-                <div><a class="btn btn--steel" href="contact.html" data-i18n="home.promo2Cta">Связаться</a></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============ ÇOK SATANLAR ============ -->
-    <section class="container section">
-        <div class="section-head">
-            <div>
-                <h2 class="section-head__title" data-i18n="home.bestSellers">Хиты</h2>
-                <p class="section-head__sub" data-i18n="home.bestSellersSub"></p>
-            </div>
-            <a class="section-head__link" href="shop.html?sort=popularity" data-i18n="common.viewAll">Смотреть все</a>
-        </div>
-        <div class="grid grid--auto products" id="best-sellers"></div>
-    </section>
+    <!-- ============ ÜRÜN BLOKLARI ============
+         Yeni gelenler, öne çıkanlar ve ana kategoriler; her blok
+         5 ürün + "daha fazla" düğmesi olarak pages/home.js
+         tarafından basılır.
+         ============================================= -->
+    <div class="container" id="rails"></div>
 
 </main>
 

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Deletion — Fores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F5F1;
+    --surface:#FFFFFF;
+    --ink:#191D1B;
+    --ink-soft:#5C6560;
+    --ink-faint:#8A9089;
+    --line:#DEDBD1;
+    --steel:#2C4A63;
+    --steel-deep:#1D3245;
+    --brass:#A9793E;
+    --brass-soft:#F0E4CF;
+    --ok:#3F6B4A;
+    --ok-soft:#E7EFE6;
+    --warn:#9C5A2E;
+    --warn-soft:#F5E7D8;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--steel);}
+
+  .topbar{border-bottom:1px solid var(--line);background:var(--surface);}
+  .topbar-inner{max-width:1180px;margin:0 auto;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}
+  .brand-mark{width:34px;height:34px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;flex-shrink:0;}
+  .brand-name{font-weight:700;font-size:17px;letter-spacing:0.01em;}
+  .breadcrumb{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-faint);letter-spacing:0.02em;}
+  .breadcrumb a{color:var(--ink-faint);text-decoration:none;}
+  .breadcrumb a:hover{color:var(--steel);}
+  .breadcrumb .sep{margin:0 8px;color:var(--line);}
+  .breadcrumb .current{color:var(--ink);}
+
+  .doc-header{max-width:1180px;margin:0 auto;padding:56px 32px 40px;}
+  .doc-tag{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--brass);background:var(--brass-soft);padding:5px 10px;margin-bottom:22px;}
+  h1{font-size:38px;line-height:1.15;margin:0 0 14px;letter-spacing:-0.01em;max-width:16ch;}
+  .doc-lede{color:var(--ink-soft);font-size:17px;max-width:60ch;margin:0 0 18px;}
+  .doc-meta{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-faint);}
+
+  .layout{max-width:1180px;margin:0 auto;padding:0 32px 100px;display:grid;grid-template-columns:240px 1fr;gap:56px;align-items:start;}
+  nav.toc{position:sticky;top:28px;border-left:1px solid var(--line);padding-left:20px;}
+  nav.toc .toc-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;}
+  nav.toc ol{list-style:none;margin:0;padding:0;}
+  nav.toc li{margin-bottom:2px;}
+  nav.toc a{display:flex;gap:10px;text-decoration:none;color:var(--ink-soft);font-size:13.5px;padding:7px 0;border-left:2px solid transparent;padding-left:10px;margin-left:-12px;transition:color .15s, border-color .15s;}
+  nav.toc a:hover{color:var(--steel);border-left-color:var(--brass);}
+  nav.toc a .n{font-family:'IBM Plex Mono',monospace;color:var(--ink-faint);flex-shrink:0;}
+  nav.toc .toc-other{margin-top:24px;padding-top:20px;border-top:1px solid var(--line);}
+  nav.toc .toc-other a{color:var(--steel);font-weight:500;}
+
+  main{min-width:0;}
+  section.clause{padding:36px 0;border-top:1px solid var(--line);scroll-margin-top:24px;}
+  .clause-head{display:flex;align-items:baseline;gap:16px;margin-bottom:16px;}
+  .clause-num{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--brass);letter-spacing:0.03em;flex-shrink:0;padding-top:2px;}
+  .clause-head h2{font-size:21px;margin:0;letter-spacing:-0.005em;}
+  .clause-body{padding-left:calc(13px + 16px);color:var(--ink);}
+  .clause-body p{margin:0 0 14px;}
+  .clause-body p:last-child{margin-bottom:0;}
+
+  /* Steps */
+  .steps{list-style:none;margin:0;padding:0;counter-reset:step;}
+  .steps li{
+    counter-increment:step;
+    display:grid;
+    grid-template-columns:36px 1fr;
+    gap:16px;
+    padding:16px 0;
+    border-top:1px solid var(--line);
+  }
+  .steps li:first-child{border-top:none;padding-top:0;}
+  .steps li::before{
+    content:counter(step);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:13px;
+    color:var(--steel);
+    background:var(--surface);
+    border:1.5px solid var(--steel);
+    width:28px;height:28px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .steps .step-body strong{display:block;margin-bottom:3px;}
+  .steps .step-body span{color:var(--ink-soft);font-size:14.5px;}
+
+  /* Data table */
+  .data-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14.5px;
+    margin-top:6px;
+  }
+  .data-table th{
+    text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    font-weight:500;
+    padding:0 0 10px;
+    border-bottom:1px solid var(--line);
+  }
+  .data-table td{
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+    color:var(--ink);
+  }
+  .data-table td:first-child{padding-right:16px;font-weight:500;width:38%;}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    padding:3px 9px;
+    border-radius:3px;
+  }
+  .pill.deleted{background:var(--ok-soft);color:var(--ok);}
+  .pill.retained{background:var(--warn-soft);color:var(--warn);}
+
+  .contact-card{margin-top:14px;background:var(--surface);border:1px solid var(--line);padding:20px 22px;font-size:14.5px;}
+  .contact-card .co{font-weight:600;margin-bottom:6px;}
+  .contact-card .row{color:var(--ink-soft);margin-bottom:3px;}
+  .contact-card a{color:var(--steel);text-decoration:none;}
+  .contact-card a:hover{text-decoration:underline;}
+
+  .note{
+    display:flex;
+    gap:12px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:3px solid var(--brass);
+    padding:16px 18px;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    margin-top:16px;
+  }
+
+  footer{border-top:1px solid var(--line);background:var(--surface);}
+  .footer-inner{max-width:1180px;margin:0 auto;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .footer-inner, .footer-inner a{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-faint);text-decoration:none;}
+  .footer-links a{margin-left:18px;}
+  .footer-links a:hover{color:var(--steel);}
+
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;}
+    nav.toc{position:static;border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:20px;}
+    h1{font-size:30px;}
+    .clause-body{padding-left:0;}
+    .clause-head{flex-direction:column;gap:4px;}
+    .data-table{font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="https://fores.kz/b2b/index.html">
+        <div class="brand-mark">F</div>
+        <div class="brand-name">FORES</div>
+      </a>
+      <div class="breadcrumb">
+        <a href="https://fores.kz/b2b/index.html">Home</a>
+        <span class="sep">/</span>
+        <span class="current">Account Deletion</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-header">
+    <span class="doc-tag">Account &amp; Data · Fores App</span>
+    <h1>Account Deletion</h1>
+    <p class="doc-lede">How to request deletion of your Fores account and the personal data associated with it, for both the Fores website and the Fores mobile application.</p>
+    <div class="doc-meta">Last updated: 27.04.2026 · Applies to fores.kz and the Fores mobile app (Android)</div>
+  </div>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Table of contents">
+      <div class="toc-label">On this page</div>
+      <ol>
+        <li><a href="#s1"><span class="n">01</span>How to Request</a></li>
+        <li><a href="#s2"><span class="n">02</span>What Gets Deleted</a></li>
+        <li><a href="#s3"><span class="n">03</span>What Is Retained</a></li>
+        <li><a href="#s4"><span class="n">04</span>Processing Time</a></li>
+        <li><a href="#s5"><span class="n">05</span>Contact</a></li>
+      </ol>
+      <div class="toc-other">
+        <a href="privacy-policy.html">→ Privacy Policy</a>
+      </div>
+    </nav>
+
+    <main>
+      <p style="color:var(--ink-soft); margin:0 0 8px;">Users of the Fores mobile app and fores.kz website can request permanent deletion of their account and associated personal data at any time. This page explains the exact steps to do so.</p>
+
+      <section class="clause" id="s1">
+        <div class="clause-head">
+          <span class="clause-num">§ 01</span>
+          <h2>How to Request Deletion</h2>
+        </div>
+        <div class="clause-body">
+          <p>You can request deletion of your Fores account using either of the following methods:</p>
+          <ol class="steps">
+            <li>
+              <div class="step-body">
+                <strong>Send a deletion request by email</strong>
+                <span>Email <a href="mailto:info@fores.kz?subject=Account%20Deletion%20Request">info@fores.kz</a> from the address registered on your account, with the subject line "Account Deletion Request". Include the phone number or email used to sign up so we can locate your account.</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-body">
+                <strong>Request deletion in the app</strong>
+                <span>Open the Fores app → go to Profile → Settings → Account, and select "Delete Account". Confirm the request when prompted.</span>
+              </div>
+            </li>
+          </ol>
+          <div class="note">Note: for company accounts (accounts verified via IIN/BIN), deletion also removes the linked company profile and any special pricing or approval status attached to it.</div>
+        </div>
+      </section>
+
+      <section class="clause" id="s2">
+        <div class="clause-head">
+          <span class="clause-num">§ 02</span>
+          <h2>What Gets Deleted</h2>
+        </div>
+        <div class="clause-body">
+          <p>Once a deletion request is confirmed, the following data is permanently removed from our active systems:</p>
+          <table class="data-table">
+            <tr><th>Data type</th><th>Status</th></tr>
+            <tr><td>Full name and surname</td><td><span class="pill deleted">Deleted</span></td></tr>
+            <tr><td>Email address and phone number</td><td><span class="pill deleted">Deleted</span></td></tr>
+            <tr><td>Account credentials (password hash)</td><td><span class="pill deleted">Deleted</span></td></tr>
+            <tr><td>Delivery addresses</td><td><span class="pill deleted">Deleted</span></td></tr>
+            <tr><td>IIN / company verification data</td><td><span class="pill deleted">Deleted</span></td></tr>
+            <tr><td>Device tokens / push notification data</td><td><span class="pill deleted">Deleted</span></td></tr>
+          </table>
+        </div>
+      </section>
+
+      <section class="clause" id="s3">
+        <div class="clause-head">
+          <span class="clause-num">§ 03</span>
+          <h2>What Is Retained, and Why</h2>
+        </div>
+        <div class="clause-body">
+          <p>Some records are kept for a limited additional period where required by Kazakhstani tax, accounting, or consumer-protection law:</p>
+          <table class="data-table">
+            <tr><th>Data type</th><th>Status</th></tr>
+            <tr><td>Order and invoice records</td><td><span class="pill retained">Retained — 5 years</span></td></tr>
+            <tr><td>Payment transaction records</td><td><span class="pill retained">Retained — 5 years</span></td></tr>
+          </table>
+          <p style="margin-top:14px;">This data is retained solely to meet legal and financial reporting obligations, is disconnected from your name/contact profile where possible, and is not used for marketing or any other purpose after account deletion.</p>
+        </div>
+      </section>
+
+      <section class="clause" id="s4">
+        <div class="clause-head">
+          <span class="clause-num">§ 04</span>
+          <h2>Processing Time</h2>
+        </div>
+        <div class="clause-body">
+          <p>Deletion requests are processed within <strong>30 days</strong> of confirmation. You will receive an email confirming that your account and associated data have been deleted once the process is complete.</p>
+        </div>
+      </section>
+
+      <section class="clause" id="s5">
+        <div class="clause-head">
+          <span class="clause-num">§ 05</span>
+          <h2>Contact</h2>
+        </div>
+        <div class="clause-body">
+          <p>If you have questions about this process or need help submitting a deletion request, contact us:</p>
+          <div class="contact-card">
+            <div class="co">TOO FORES</div>
+            <div class="row">Kazakhstan, Almaty</div>
+            <div class="row">Email: <a href="mailto:info@fores.kz">info@fores.kz</a></div>
+            <div class="row">Working hours: Mon–Fri, 09:00–18:00 (UTC+5)</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2026 TOO FORES</div>
+      <div class="footer-links">
+        <a href="https://fores.kz/b2b/index.html">Home</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="account-deletion.html">Account Deletion</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+# =====================================================================
+#  FORES MAĞAZA — hata sayfaları
+# =====================================================================
+#
+#  SORUN: özel bir hata sayfası yoksa olmayan bir adres (ör. /asdasd.html)
+#  Apache'nin gömülü sayfasına düşer. O sayfa paylaşımlı sunucunun
+#  ServerName'ini basar — hem kırık görünür hem alakasız bir altyapı adını
+#  dışarı sızdırır.
+#
+#  ÇÖZÜM: kendi 404 sayfamız. ErrorDocument bir YÖNLENDİRME DEĞİL, iç
+#  istektir: tarayıcıdaki adres değişmez ve durum kodu 404 kalır (arama
+#  motorları için doğrusu budur; 301/302 ile yönlendirmek yanlış olurdu).
+#
+#  ⚠️ Adres değişmediği için 404.html göreli yollarla çalışamaz:
+#     /a/b/c isteğinde `assets/js/…` -> /a/b/assets/js/… olurdu. Bu yüzden
+#     404.html içinde <base href="/"> var. Oraya dokunurken bunu bozma.
+# =====================================================================
+
+ErrorDocument 404 /404.html
+
+# Dizin listelemesi sunucuda zaten kapalı ve o yollarda 403 dönüyor.
+# Kullanıcı açısından "böyle bir sayfa yok"tan farkı olmadığı için aynı
+# sayfaya veriliyor; çıplak sunucu sayfası HİÇBİR yolda görünmesin.
+ErrorDocument 403 /404.html

@@ -1,15 +1,22 @@
 /* ============================================================
-   ui/layout.js — HEADER + FOOTER BİLEŞENİ
+   ui/layout.js — BAŞLIK + ALT BİLGİ + MOBİL ALT ÇUBUK
    ------------------------------------------------------------
-   Header ve footer HER SAYFAYA kopyalanmaz. HTML'de yalnız iki
-   yer tutucu bulunur:
+   Sayfalarda yalnız iki yer tutucu bulunur:
 
        <div id="site-header"></div>
        <div id="site-footer"></div>
 
-   İçerik buradan basılır. Menüye bir bağlantı eklemek 11 dosyayı
-   değil TEK dosyayı değiştirmek demektir — statik sitelerde en sık
-   yapılan hata budur.
+   İçerik buradan basılır. Menüye bağlantı eklemek 20 dosyayı
+   değil TEK dosyayı değiştirmek demektir.
+
+   BAŞLIK ÜÇ ŞERİT (pazar yeri düzeni):
+     1) logo · teslimat · ARAMA · dil · hesap · siparişler · sepet
+     2) "Tüm kategoriler" + hızlı bağlantılar + duyuru
+     3) (dar ekran) alt gezinme çubuğu
+
+   Metinler kaynak projedeki sözlükten (i18n/*.data.js) gelir;
+   anahtarlar bilerek oradaki adlarla aynıdır ki iki sitede aynı
+   cümleler görünsün.
    ============================================================ */
 
 (function (App) {
@@ -18,8 +25,11 @@
     var Layout = {};
     var B = App.config.BRAND;
 
+    /* Bayrak dosyaları — dil kodu ile dosya adı birebir değil. */
+    var FLAGS = { ru: 'ru.png', kz: 'kz.png', en: 'eng.png', tr: 'tr.png' };
+
     /* ============================================================
-       HEADER
+       BAŞLIK
        ============================================================ */
 
     function headerHtml() {
@@ -28,261 +38,555 @@
         return '' +
         '<header class="header" id="header">' +
 
-            /* --- üst şerit --- */
-            '<div class="topbar">' +
-                '<div class="container topbar__inner">' +
-                    '<div class="topbar__note">' +
-                        App.icon('truck', 13) +
-                        '<span>' + t('header.announce', '') + '</span>' +
-                        '<b>' + t('header.announceStrong', '') + '</b>' +
-                    '</div>' +
-                    '<div class="topbar__links">' +
-                        '<a href="delivery.html">' + t('nav.delivery', 'Teslimat') + '</a>' +
-                        '<a href="contact.html">' + t('nav.contact', 'İletişim') + '</a>' +
-                        langSwitcherHtml() +
-                    '</div>' +
+            /* ---------- 1. ŞERİT: KÜNYE ----------
+               Telefon, teslimat notu, dil ve hesap buraya taşındı.
+               Böylece ana satırda YALNIZCA logo, arama ve sepet kalır;
+               sayfanın üstü kalabalık bir gezinme bandı olmaktan çıkar. */
+            '<div class="utilbar">' +
+                '<div class="container utilbar__inner">' +
+                    '<span class="utilbar__note">' +
+                        App.icon('pin', 12) +
+                        '<span>' + App.utils.escape(B.address) + '</span>' +
+                    '</span>' +
+
+                    /* Destek hattı burada: ana satırda logo ile aramanın
+                       arasında yer kalmıyordu, künye şeridi ise tam bu
+                       tür kısa bilgiler için. */
+                    '<a class="utilbar__note utilbar__phone" href="tel:' + B.phone.replace(/\s/g, '') + '">' +
+                        App.icon('headset', 12) +
+                        '<span>' + t('footer.gotQuestion', '') + '</span>' +
+                        '<b>' + App.utils.escape(B.phone) + '</b>' +
+                    '</a>' +
+
+                    '<span class="utilbar__spacer"></span>' +
+
+                    '<span class="utilbar__links">' +
+                        '<a href="contact-us.html">' + t('header.contactUs', '') + '</a>' +
+                        langMenuHtml() +
+                        userMenuHtml() +
+                    '</span>' +
                 '</div>' +
             '</div>' +
 
-            /* --- ana şerit --- */
+            /* ---------- 2. ŞERİT: LOGO + ARAMA ---------- */
             '<div class="container header__main">' +
-                '<button class="hicon burger" type="button" data-act="toggle-menu" aria-label="Menü">' +
+
+                '<button class="burger" type="button" data-act="toggle-menu" ' +
+                        'aria-label="' + t('menu.mainMenu', 'Menu') + '">' +
                     App.icon('menu', 20) +
                 '</button>' +
 
-                '<a class="logo" href="index.html">' +
-                    '<span class="logo__mark">' + App.icon('box', 18) + '</span>' +
-                    '<span class="logo__text">' + B.name + '<em>' + B.suffix + '</em></span>' +
-                '</a>' +
+                logoHtml() +
 
-                '<div class="search" id="site-search">' +
-                    '<form class="search__field" role="search" autocomplete="off">' +
-                        '<input class="search__input" type="search" id="search-input" ' +
-                               'placeholder="' + t('header.searchPlaceholder', 'Ara…') + '" ' +
-                               'aria-label="' + t('common.search', 'Ara') + '">' +
-                        '<button class="search__btn" type="submit" aria-label="' + t('common.search', 'Ara') + '">' +
-                            App.icon('search', 15) +
-                        '</button>' +
-                    '</form>' +
-                    '<div class="search__panel" id="search-panel"></div>' +
-                '</div>' +
+                searchHtml() +
 
+                /* Aramanın sağında: favori · karşılaştır · sepet.
+                   Giriş düğmesi buradan kalktı — hesap zaten en üstteki
+                   künye şeridinde duruyor, ikinci kez tekrarlamak
+                   satırı kalabalıklaştırıyordu. */
                 '<div class="header__actions">' +
-                    '<button class="hicon" type="button" data-act="toggle-search" aria-label="' + t('common.search', 'Ara') + '" ' +
-                            'style="display:none" id="search-toggle">' + App.icon('search', 18) + '</button>' +
-
-                    userMenuHtml() +
-
-                    '<a class="hicon" href="compare.html" title="' + t('header.compare', 'Karşılaştır') + '">' +
-                        App.icon('compare', 18) +
-                        '<span class="hicon__badge" id="compare-badge" hidden>0</span>' +
-                    '</a>' +
-
-                    '<a class="hicon" href="wishlist.html" title="' + t('header.wishlist', 'Favoriler') + '">' +
-                        App.icon('heart', 18) +
+                    '<a class="hicon" href="wishlist.html">' +
+                        App.icon('heart', 22) +
+                        '<span class="hicon__label">' + t('header.wishlist', 'Избранное') + '</span>' +
                         '<span class="hicon__badge" id="wishlist-badge" hidden>0</span>' +
                     '</a>' +
 
-                    '<button class="hicon hicon--accent" type="button" data-act="toggle-drawer" ' +
-                            'title="' + t('header.cart', 'Sepet') + '">' +
-                        App.icon('cart', 18) +
-                        '<span class="hicon__badge" id="cart-badge" hidden>0</span>' +
-                    '</button>' +
+                    '<a class="hicon" href="compare.html">' +
+                        App.icon('compare', 22) +
+                        '<span class="hicon__label">' + t('header.compare', 'Сравнить') + '</span>' +
+                        '<span class="hicon__badge" id="compare-badge" hidden>0</span>' +
+                    '</a>' +
+
+                    cartActionHtml() +
                 '</div>' +
             '</div>' +
 
-            /* --- kategori şeridi --- */
+            /* ---------- 3. ŞERİT: KATALOG ---------- */
             '<nav class="navbar">' +
                 '<div class="container navbar__inner">' +
+
                     '<div class="catmenu" id="catmenu">' +
                         '<button class="catmenu__btn" type="button" data-act="toggle-catmenu">' +
-                            App.icon('menu', 14) +
-                            '<span>' + t('header.allCategories', 'Tüm kategoriler') + '</span>' +
-                            App.icon('chevronDown', 12) +
+                            App.icon('grid', 14) +
+                            '<span>' + t('menu.categories', 'Категории') + '</span>' +
+                            App.icon('chevronDown', 11) +
                         '</button>' +
                         '<div class="catmenu__panel" id="catmenu-panel">' +
-                            '<div class="t-dim t-sm" style="padding:12px">' + t('common.loading', 'Yükleniyor…') + '</div>' +
+                            '<div class="t-dim t-sm" style="padding:12px">' +
+                                t('shopList.app.loading', 'Загрузка…') + '</div>' +
                         '</div>' +
                     '</div>' +
 
-                    '<a class="navlink" href="shop.html">' + t('nav.shop', 'Tüm ürünler') + '</a>' +
-                    '<a class="navlink" href="shop.html?sort=date">' + t('nav.newArrivals', 'Yeni gelenler') + '</a>' +
-                    '<a class="navlink" href="shop.html?sort=popularity">' + t('nav.bestSellers', 'Çok satanlar') + '</a>' +
-                    '<a class="navlink" href="about.html">' + t('nav.about', 'Hakkımızda') + '</a>' +
-                    '<a class="navlink" href="contact.html">' + t('nav.contact', 'İletişim') + '</a>' +
+                    /* Bağlantılar ŞERİDİN ORTASINDA: solda kategori
+                       düğmesi çıpa olarak durur, bağlantı öbeği iki
+                       yanındaki esnek boşlukla ortalanır. */
+                    '<span class="navbar__spacer"></span>' +
+
+                    '<a class="navlink" href="shop.html">'    + t('menu.shop', 'Магазин') + '</a>' +
+                    '<a class="navlink" href="about-us.html">' + t('menu.aboutUs', 'О нас') + '</a>' +
+                    '<a class="navlink" href="contact-us.html">' + t('header.contactUs', 'Контакты') + '</a>' +
+
+                    '<span class="navbar__spacer"></span>' +
                 '</div>' +
             '</nav>' +
         '</header>';
     }
 
-    function langSwitcherHtml() {
-        var current = App.i18n.lang;
-        return '<div class="catmenu" id="langmenu" style="position:relative">' +
-                   '<button class="btn btn--plain btn--sm" type="button" data-act="toggle-lang">' +
-                       App.icon('globe', 13) +
-                       '<span>' + String(current || '').toUpperCase() + '</span>' +
-                   '</button>' +
-                   '<div class="catmenu__panel" id="langmenu-panel" style="width:170px;right:0;left:auto">' +
-                       App.i18n.available().map(function (l) {
-                           return '<button class="catmenu__link" type="button" data-lang="' + l.code + '" ' +
-                                  'style="width:100%;text-align:left">' +
-                                      '<span>' + l.name + '</span>' +
-                                      (l.code === current ? App.icon('check', 13) : '') +
-                                  '</button>';
-                       }).join('') +
-                   '</div>' +
+    /**
+     * Sepet sütunu — YALNIZ GİRİŞLİ kullanıcıda.
+     *
+     * Sepet sunucuda kullanıcıya bağlı; girişsiz ziyaretçide simge
+     * boş bir kutuya götürür, ürün eklemek de "önce giriş yapın"
+     * uyarısıyla biter. Girişsizken hiç çizilmez — giriş bağlantısı
+     * zaten en üstteki künye şeridinde duruyor, aramanın yanında
+     * ikinci kez tekrarlamak satırı kalabalıklaştırıyordu.
+     */
+    function cartActionHtml() {
+        var t = App.t;
+
+        if (!App.auth.isLoggedIn()) return '';
+
+        return '<button class="hicon hicon--accent" type="button" data-act="toggle-drawer">' +
+                   App.icon('cart', 22) +
+                   '<span class="hicon__sum" id="cart-total">' +
+                       App.fmt.price(App.cart.total()) + '</span>' +
+                   '<span class="hicon__label">' + t('header.cart', 'Корзина') + '</span>' +
+                   '<span class="hicon__badge" id="cart-badge" hidden>0</span>' +
+               '</button>';
+    }
+
+    /** Logo — ikon yok; kimlik yazının kendisi ve altındaki künye. */
+    function logoHtml() {
+        return '<a class="logo" href="index.html" data-tag="' +
+                   App.utils.escape(B.tagline) + '">' +
+                   '<span class="logo__text">' + App.utils.escape(B.name) +
+                       (B.suffix ? '<em>' + App.utils.escape(B.suffix) + '</em>' : '') +
+                   '</span>' +
+               '</a>';
+    }
+
+    /**
+     * Arama kutusu. Soldaki seçici "nerede arayacağım" sorusunu
+     * cevaplar; kategori seçiliyse arama o dalın içinde kalır.
+     */
+    function searchHtml() {
+        var t = App.t;
+        return '<div class="search" id="site-search">' +
+                   '<form class="search__field" role="search" autocomplete="off">' +
+                       '<select class="search__scope" id="search-scope" aria-label="' +
+                               t('header.allCategories', 'Все категории') + '">' +
+                           '<option value="">' + t('header.allCategories', 'Все категории') + '</option>' +
+                       '</select>' +
+                       '<input class="search__input" type="search" id="search-input" ' +
+                              'placeholder="' + t('header.searchPlaceholder', 'Поиск...') + '" ' +
+                              'aria-label="' + t('common.search', 'Поиск') + '">' +
+                       '<button class="search__btn" type="submit" aria-label="' + t('common.search', 'Поиск') + '">' +
+                           App.icon('search', 17) +
+                       '</button>' +
+                   '</form>' +
+                   '<div class="search__panel" id="search-panel"></div>' +
                '</div>';
     }
 
+    /** Dil menüsü — bayrak + kod. */
+    function langMenuHtml() {
+        var current = App.i18n.lang;
+        var flag = FLAGS[current];
+
+        return '<span class="catmenu" id="langmenu">' +
+                   '<button class="hbtn" type="button" data-act="toggle-lang">' +
+                       '<span class="hbtn__main">' +
+                           (flag ? '<img src="assets/img/flags/' + flag + '" alt="" width="18" height="12" ' +
+                                   'style="border-radius:2px">' : '') +
+                           '<span>' + String(current || '').toUpperCase() + '</span>' +
+                           App.icon('chevronDown', 11) +
+                       '</span>' +
+                   '</button>' +
+                   '<span class="catmenu__panel" style="width:190px;right:0;left:auto">' +
+                       App.i18n.available().map(function (l) {
+                           return '<button class="catmenu__link" type="button" data-lang="' + l.code + '">' +
+                                      (FLAGS[l.code] ? '<img src="assets/img/flags/' + FLAGS[l.code] + '" ' +
+                                          'alt="" width="20" height="14" style="border-radius:2px">' : '') +
+                                      '<span class="grow">' + l.name + '</span>' +
+                                      (l.code === current ? App.icon('check', 14) : '') +
+                                  '</button>';
+                       }).join('') +
+                   '</span>' +
+               '</span>';
+    }
+
+    /** Hesap menüsü — girişsizken "Giriş yap", girişliyken ad + menü. */
     function userMenuHtml() {
         var t = App.t;
 
         if (!App.auth.isLoggedIn()) {
-            return '<a class="hicon" href="login.html" title="' + t('header.login', 'Giriş yap') + '">' +
-                       App.icon('user', 18) +
+            return '<a class="hbtn" href="login.html">' +
+                       '<span class="hbtn__main">' +
+                           App.icon('user', 13) +
+                           '<span>' + t('header.signIn', 'Войти') + '</span>' +
+                       '</span>' +
                    '</a>';
         }
 
         var user = App.auth.user() || {};
-        var name = user.firstName || user.name || user.email || '';
+        var name = user.firstName || user.name || user.fullName || user.email || '';
 
-        return '<div class="catmenu" id="usermenu" style="position:relative">' +
-                   '<button class="hicon" type="button" data-act="toggle-user" title="' + App.utils.escape(name) + '">' +
-                       App.icon('user', 18) +
+        return '<span class="catmenu" id="usermenu">' +
+                   '<button class="hbtn" type="button" data-act="toggle-user">' +
+                       '<span class="hbtn__main">' +
+                           App.icon('user', 13) +
+                           '<span>' + App.utils.escape(App.fmt.truncate(name, 14)) + '</span>' +
+                           App.icon('chevronDown', 10) +
+                       '</span>' +
                    '</button>' +
-                   '<div class="catmenu__panel" id="usermenu-panel" style="width:220px;right:0;left:auto">' +
-                       '<div style="padding:10px 12px;border-bottom:1px solid var(--line-soft);margin-bottom:6px">' +
-                           '<div class="t-sm t-hi t-bold">' + App.utils.escape(name) + '</div>' +
-                           '<div class="t-xs t-dim">' + App.utils.escape(user.email || '') + '</div>' +
-                       '</div>' +
-                       '<a class="catmenu__link" href="account.html">' + App.icon('user', 14) + '<span class="grow">' + t('account.dashboard', 'Özet') + '</span></a>' +
-                       '<a class="catmenu__link" href="account.html?tab=orders">' + App.icon('box', 14) + '<span class="grow">' + t('account.orders', 'Siparişlerim') + '</span></a>' +
-                       '<a class="catmenu__link" href="account.html?tab=addresses">' + App.icon('pin', 14) + '<span class="grow">' + t('account.addresses', 'Adreslerim') + '</span></a>' +
-                       '<a class="catmenu__link" href="wishlist.html">' + App.icon('heart', 14) + '<span class="grow">' + t('header.wishlist', 'Favoriler') + '</span></a>' +
-                       '<button class="catmenu__link" type="button" data-act="logout" style="width:100%;text-align:left">' +
-                           App.icon('logout', 14) + '<span class="grow">' + t('header.logout', 'Çıkış yap') + '</span>' +
+
+                   '<span class="catmenu__panel" style="width:240px;right:0;left:auto">' +
+                       '<span style="display:block;padding:10px 16px;border-bottom:1px solid var(--line)">' +
+                           '<span class="t-sm t-hi t-bold" style="display:block">' + App.utils.escape(name) + '</span>' +
+                           '<span class="t-xs t-dim">' + App.utils.escape(user.email || '') + '</span>' +
+                       '</span>' +
+                       link('my-account.html', 'user', 'account.tabs.dashboard', 'Панель') +
+                       link('my-account.html?tab=orders', 'box', 'account.tabs.orders', 'Заказы') +
+                       link('my-account.html?tab=addresses', 'pin', 'account.tabs.addresses', 'Адреса') +
+                       link('my-account.html?tab=details', 'settings', 'account.tabs.accountDetails', 'Детали') +
+                       link('my-account.html?tab=reviews', 'star', 'account.tabs.reviews', 'Отзывы') +
+                       link('wishlist.html', 'heart', 'account.tabs.wishlist', 'Избранное') +
+                       '<button class="catmenu__link" type="button" data-act="logout">' +
+                           App.icon('logout', 15) +
+                           '<span class="grow">' + t('account.tabs.logout', 'Выйти') + '</span>' +
                        '</button>' +
-                   '</div>' +
-               '</div>';
+                   '</span>' +
+               '</span>';
+
+        function link(href, icon, key, fallback) {
+            return '<a class="catmenu__link" href="' + href + '">' +
+                       App.icon(icon, 15) +
+                       '<span class="grow">' + t(key, fallback) + '</span>' +
+                   '</a>';
+        }
     }
 
     /* ============================================================
-       FOOTER
+       ALT BİLGİ
        ============================================================ */
 
     function footerHtml() {
         var t = App.t;
-        var year = new Date().getFullYear();
 
         return '' +
         '<footer class="footer">' +
+
+            '<button class="footer__totop" type="button" data-act="scroll-top">' +
+                App.icon('chevronUp', 14) + ' ' + t('common.top', 'Наверх') +
+            '</button>' +
+
             '<div class="container footer__top">' +
 
                 '<div>' +
-                    '<a class="logo" href="index.html">' +
-                        '<span class="logo__mark">' + App.icon('box', 18) + '</span>' +
-                        '<span class="logo__text">' + B.name + '<em>' + B.suffix + '</em></span>' +
-                    '</a>' +
-                    '<p class="footer__brand-text">' + t('footer.aboutText', '') + '</p>' +
+                    logoHtml() +
+                    '<p class="footer__brand-text">' + t('footer.registerDesc', '') + '</p>' +
+                    '<div class="footer__contact-row">' + App.icon('headset', 15) +
+                        '<span>' + t('footer.gotQuestion', '') + '</span></div>' +
+                    '<div class="footer__contact-row">' + App.icon('phone', 15) +
+                        '<a href="tel:' + B.phone.replace(/\s/g, '') + '">' + B.phone + '</a></div>' +
+                    '<div class="footer__contact-row">' + App.icon('phone', 15) +
+                        '<a href="tel:' + B.phone2.replace(/\s/g, '') + '">' + B.phone2 + '</a></div>' +
+                    '<div class="footer__contact-row">' + App.icon('mail', 15) +
+                        '<a href="mailto:' + B.email + '">' + B.email + '</a></div>' +
                     '<div class="social">' +
-                        '<a href="#" aria-label="Telegram">' + App.icon('mail', 15) + '</a>' +
-                        '<a href="#" aria-label="WhatsApp">' + App.icon('phone', 15) + '</a>' +
-                        '<a href="#" aria-label="Web">' + App.icon('globe', 15) + '</a>' +
+                        '<a href="mailto:' + B.email + '" aria-label="E-mail">' + App.icon('mail', 15) + '</a>' +
+                        '<a href="tel:' + B.phone.replace(/\s/g, '') + '" aria-label="Phone">' + App.icon('phone', 15) + '</a>' +
+                        '<a href="contact-us.html" aria-label="Contact">' + App.icon('globe', 15) + '</a>' +
                     '</div>' +
                 '</div>' +
 
                 '<div>' +
-                    '<h4 class="footer__title">' + t('footer.shop', 'Mağaza') + '</h4>' +
+                    '<h4 class="footer__title">' + t('footer.company', 'Компания') + '</h4>' +
                     '<ul class="footer__list">' +
-                        '<li><a href="shop.html">' + t('nav.shop', 'Tüm ürünler') + '</a></li>' +
-                        '<li><a href="shop.html?sort=date">' + t('nav.newArrivals', 'Yeni gelenler') + '</a></li>' +
-                        '<li><a href="shop.html?sort=popularity">' + t('nav.bestSellers', 'Çok satanlar') + '</a></li>' +
-                        '<li><a href="wishlist.html">' + t('header.wishlist', 'Favoriler') + '</a></li>' +
-                        '<li><a href="compare.html">' + t('header.compare', 'Karşılaştır') + '</a></li>' +
+                        '<li><a href="about-us.html">' + t('menu.aboutUs', 'О нас') + '</a></li>' +
+                        '<li><a href="contact-us.html">' + t('header.contactUs', 'Контакты') + '</a></li>' +
+                        '<li><a href="shop.html">' + t('menu.shop', 'Магазин') + '</a></li>' +
+                        '<li><a href="oferta.html">' + t('footer.offerAgreement', 'Публичная оферта') + '</a></li>' +
+                        '<li><a href="privacy.html">' + t('footer.privacyPolicy', 'Политика конфиденциальности') + '</a></li>' +
                     '</ul>' +
                 '</div>' +
 
                 '<div>' +
-                    '<h4 class="footer__title">' + t('footer.company', 'Kurumsal') + '</h4>' +
+                    '<h4 class="footer__title">' + t('footer.customerService', 'Служба поддержки') + '</h4>' +
                     '<ul class="footer__list">' +
-                        '<li><a href="about.html">' + t('nav.about', 'Hakkımızda') + '</a></li>' +
-                        '<li><a href="contact.html">' + t('nav.contact', 'İletişim') + '</a></li>' +
-                        '<li><a href="delivery.html">' + t('nav.delivery', 'Teslimat') + '</a></li>' +
-                        '<li><a href="returns.html">' + t('nav.returns', 'İade') + '</a></li>' +
+                        '<li><a href="delivery.html">' + t('footer.deliveryInfo', 'Условия доставки') + '</a></li>' +
+                        '<li><a href="returns.html">' + t('footer.returnsInfo', 'Возврат и обмен') + '</a></li>' +
+                        '<li><a href="contact-us.html#faq">' + t('menu.faq', 'Вопросы и ответы') + '</a></li>' +
+                        '<li><a href="delete-account.html">' + t('deleteAccount.pageTitle', 'Удаление аккаунта') + '</a></li>' +
+                        '<li><a href="my-account.html?tab=orders">' + t('header.trackOrder', 'Отследить заказ') + '</a></li>' +
                     '</ul>' +
                 '</div>' +
 
                 '<div>' +
-                    '<h4 class="footer__title">' + t('footer.help', 'Yardım') + '</h4>' +
+                    '<h4 class="footer__title">' + t('footer.myAccount', 'Мой аккаунт') + '</h4>' +
                     '<ul class="footer__list">' +
-                        '<li><a href="account.html">' + t('account.title', 'Hesabım') + '</a></li>' +
-                        '<li><a href="account.html?tab=orders">' + t('account.orders', 'Siparişlerim') + '</a></li>' +
-                        '<li><a href="cart.html">' + t('header.cart', 'Sepet') + '</a></li>' +
-                        '<li><a href="login.html">' + t('header.login', 'Giriş yap') + '</a></li>' +
+                        '<li><a href="my-account.html">' + t('footer.profile', 'Профиль') + '</a></li>' +
+                        '<li><a href="cart.html">' + t('footer.viewCart', 'Корзина') + '</a></li>' +
+                        '<li><a href="wishlist.html">' + t('footer.myWishlist', 'Избранное') + '</a></li>' +
+                        '<li><a href="compare.html">' + t('footer.compareProducts', 'Сравнить товары') + '</a></li>' +
+                        '<li><a href="login.html">' + t('header.signIn', 'Войти') + '</a></li>' +
                     '</ul>' +
                 '</div>' +
 
                 '<div>' +
-                    '<h4 class="footer__title">' + t('footer.contact', 'İletişim') + '</h4>' +
-                    '<div class="footer__contact-row">' + App.icon('phone', 14) +
-                        '<a href="tel:' + B.phone.replace(/\s/g, '') + '">' + B.phone + '</a></div>' +
-                    '<div class="footer__contact-row">' + App.icon('mail', 14) +
+                    '<h4 class="footer__title">' + t('contact.pageTitle', 'Контакты') + '</h4>' +
+                    '<div class="footer__contact-row">' + App.icon('pin', 15) +
+                        '<span style="color:rgba(255,255,255,.68)">' + App.utils.escape(B.address) + '</span></div>' +
+                    '<div class="footer__contact-row">' + App.icon('mail', 15) +
                         '<a href="mailto:' + B.email + '">' + B.email + '</a></div>' +
-                    '<div class="footer__contact-row">' + App.icon('pin', 14) +
-                        '<span class="t-mut">' + B.address + '</span></div>' +
-
-                    '<h4 class="footer__title" style="margin-top:24px">' + t('footer.newsletter', 'Bülten') + '</h4>' +
-                    '<form class="flex gap-2" id="newsletter-form">' +
-                        '<input class="input" type="email" required ' +
-                               'placeholder="' + t('footer.emailPlaceholder', 'E-posta') + '" style="height:40px">' +
-                        '<button class="btn btn--steel" type="submit" style="--btn-h:40px">' +
-                            App.icon('arrowRight', 15) + '</button>' +
-                    '</form>' +
+                    '<div class="footer__contact-row">' + App.icon('clock', 15) +
+                        '<span style="color:rgba(255,255,255,.68)">' + t('footer.support247', '') + '</span></div>' +
+                    '<a class="btn btn--ghost btn--sm mt-3" href="contact-us.html">' +
+                        t('contact.formTitle', 'Написать нам') + '</a>' +
                 '</div>' +
             '</div>' +
 
             '<div class="container footer__bottom">' +
-                '<span>© ' + year + ' ' + B.name + B.suffix + '. ' + t('footer.rights', '') + '</span>' +
-                '<div class="footer__pay">' +
-                    '<span>VISA</span><span>MASTERCARD</span><span>KASPI</span><span>IBAN</span>' +
-                '</div>' +
+                '<span>' + t('footer.copyright', '© FORES') + '</span>' +
+                '<span class="footer__made">' +
+                    'Made by ' +
+                    '<a href="https://aycom.kz" target="_blank" rel="noopener noreferrer">AYCOM</a>' +
+                '</span>' +
             '</div>' +
-        '</footer>';
+        '</footer>' +
+
+        tabbarHtml();
+    }
+
+    /** Dar ekranda alt gezinme çubuğu — pazar yerlerinde standart. */
+    function tabbarHtml() {
+        var t = App.t;
+        var here = currentPage();
+
+        function item(href, icon, key, fallback, badgeId) {
+            var active = href.split('?')[0] === here ? ' is-active' : '';
+            return '<a class="tabbar__item' + active + '" href="' + href + '">' +
+                       App.icon(icon, 19) +
+                       (badgeId ? '<span class="tabbar__badge" id="' + badgeId + '" hidden>0</span>' : '') +
+                       '<span>' + t(key, fallback) + '</span>' +
+                   '</a>';
+        }
+
+        var logged = App.auth.isLoggedIn();
+
+        return '<nav class="tabbar">' +
+                   item('index.html', 'home', 'stickyFooter.home', 'Главная') +
+                   item('shop.html', 'grid', 'stickyFooter.shop', 'Магазин') +
+                   (logged
+                       ? item('wishlist.html', 'heart', 'header.wishlist', 'Избранное', 'wishlist-badge-m')
+                       : '') +
+                   item(logged ? 'my-account.html' : 'login.html', 'user', 'stickyFooter.account', 'Аккаунт') +
+                   (logged
+                       ? item('cart.html', 'cart', 'stickyFooter.cart', 'Корзина', 'cart-badge-m')
+                       : '') +
+               '</nav>';
     }
 
     /* ============================================================
-       KATEGORİ MENÜSÜ (veriye bağlı, sonradan doldurulur)
+       KATEGORİ MENÜSÜ (veri gelince dolar)
        ============================================================ */
 
+    /* ============================================================
+       KATEGORİ MEGAMENÜSÜ
+       ------------------------------------------------------------
+       Kaynak projedeki düzenin aynısı: SOLDA ana kategori listesi,
+       SAĞDA geniş bir panel. Soldaki bir başlığın üstüne gelince
+       panel o kategorinin alt dallarıyla dolar ve dallar SÜTUNLARA
+       dizilir — menü aşağı doğru uzamak yerine YANA açılır.
+
+       🔴 GEÇ KAPANMA: fare düğmeden panele giderken aradaki boşluğu
+       geçer; menü anında kapanırsa kullanıcı panele hiç ulaşamaz.
+       Bu yüzden ayrılışta 150 ms beklenir, o sırada panele girilirse
+       kapanma iptal olur.
+       ============================================================ */
+
+    var catTree = [];
+    var closeTimer = null;
+
     function renderCategoryMenu(categories) {
+        catTree = categories || [];
+
         var panel = document.getElementById('catmenu-panel');
+        var scope = document.getElementById('search-scope');
+
+        /* Arama kutusundaki kapsam seçicisi de aynı listeden beslenir.
+           Uzun adlar kırpılır: seçicinin iç genişliği en uzun seçeneğe
+           göre hesaplanıyor, kırpmazsak kutu araç çubuğunu eziyor. */
+        if (scope && catTree.length) {
+            scope.innerHTML = '<option value="">' + App.t('header.allCategories', 'Все категории') + '</option>' +
+                flatten(catTree, 0).map(function (row) {
+                    var label = (row.depth ? '— '.repeat(row.depth) : '') + row.name;
+                    return '<option value="' + row.id + '">' +
+                           App.utils.escape(App.fmt.truncate(label, 34)) + '</option>';
+                }).join('');
+        }
+
         if (!panel) return;
 
-        if (!categories || !categories.length) {
-            panel.innerHTML = '<div class="t-dim t-sm" style="padding:12px">' +
-                              App.t('shop.noResults', 'Kategori bulunamadı') + '</div>';
+        if (!catTree.length) {
+            panel.innerHTML = '<div class="t-dim t-sm" style="padding:16px">' +
+                              App.t('shopList.app.loading', '…') + '</div>';
             return;
         }
 
-        /* İki seviye gösterilir: daha derini menüde okunmaz hale gelir,
-           kullanıcı zaten mağaza sayfasındaki ağaçtan inebilir. */
-        panel.innerHTML = categories.map(function (cat) {
-            var subs = (cat.SubCategories || []).slice(0, 8);
+        panel.innerHTML =
+            '<div class="megamenu">' +
+                '<ul class="megamenu__side">' +
+                    catTree.map(function (cat, i) {
+                        var subs = cat.SubCategories || [];
+                        return '<li>' +
+                                   '<button class="megaitem' + (i === 0 ? ' is-active' : '') + '" type="button" ' +
+                                           'data-act="mega-pick" data-id="' + cat.Id + '">' +
+                                       '<span class="grow t-clamp-1">' + App.utils.escape(cat.Name) + '</span>' +
+                                       (subs.length ? App.icon('chevronRight', 12) : '') +
+                                   '</button>' +
+                               '</li>';
+                    }).join('') +
+                '</ul>' +
+                '<div class="megamenu__panel" id="megamenu-panel">' +
+                    panelHtml(catTree[0]) +
+                '</div>' +
+            '</div>';
+    }
 
-            return '<div class="catmenu__group">' +
-                       '<a class="catmenu__link" href="shop.html?category=' + cat.Id + '">' +
-                           '<span>' + App.utils.escape(cat.Name) + '</span>' +
-                           App.icon('chevronRight', 11) +
+    /**
+     * Sağ panel: kategori başlığı + alt dallar sütunlar hâlinde.
+     *
+     * 🔴 AĞACIN TAMAMI ÇİZİLİR. Ağaç her kategoride aynı derinlikte
+     * değil: "Fores" altında 23 yaprak var, "Foral" altında ise
+     * Фурнитура → ДВЕРНЫЕ/ОКОННЫЕ → 11 yaprak şeklinde iki kat daha
+     * iniyor. Sabit iki seviye basınca Foral'ın yaprakları hiç
+     * görünmüyordu. Üç durum ayrı ele alınır:
+     *
+     *   1) SARMALAYICI DAL — dalın çocukları da dallıysa (Foral),
+     *      dal tam genişlikte başlık olur, ÇOCUKLARI sütunlara dizilir.
+     *   2) NORMAL DAL — her dal bir sütun: başlık + altındaki ağaç.
+     *   3) YAPRAK — çocuğu olmayan dallar sade bağlantı ızgarası.
+     */
+    function panelHtml(cat) {
+        if (!cat) return '';
+
+        var subs = cat.SubCategories || [];
+
+        var html = '<a class="megapanel__title" href="shop.html?category=' + cat.Id + '">' +
+                       '<span>' + App.utils.escape(cat.Name) + '</span>' +
+                       App.icon('arrowRight', 13) +
+                   '</a>';
+
+        if (!subs.length) {
+            return html + '<p class="t-mut t-sm">' + App.t('category.noSubcategory', '—') + '</p>';
+        }
+
+        var deep = subs.filter(hasKids);
+        var flat = subs.filter(function (sub) { return !hasKids(sub); });
+
+        /* 1) Sarmalayıcı: dallı dalların çocukları da dallı mı? */
+        var wrapper = deep.length > 0 && deep.every(function (sub) {
+            return (sub.SubCategories || []).some(hasKids);
+        });
+
+        if (wrapper) {
+            html += deep.map(function (sub) {
+                return '<a class="megapanel__group" href="shop.html?category=' + sub.Id + '">' +
+                           App.utils.escape(sub.Name) +
                        '</a>' +
-                       (subs.length
-                           ? '<div class="catmenu__sub">' + subs.map(function (sub) {
-                                 return '<a class="catmenu__link" href="shop.html?category=' + sub.Id + '">' +
-                                            '<span>' + App.utils.escape(sub.Name) + '</span>' +
-                                        '</a>';
-                             }).join('') + '</div>'
-                           : '') +
-                   '</div>';
+                       '<div class="megacols">' +
+                           (sub.SubCategories || []).map(columnHtml).join('') +
+                       '</div>';
+            }).join('');
+
+        } else if (deep.length) {
+            /* 2) Her dal bir sütun. */
+            html += '<div class="megacols">' + deep.map(columnHtml).join('') + '</div>';
+        }
+
+        /* 3) Yapraklar sade ızgara. */
+        if (flat.length) {
+            html += '<div class="megacols megacols--flat">' + flat.map(function (leaf) {
+                return '<a class="megacol__item" href="shop.html?category=' + leaf.Id + '">' +
+                           App.utils.escape(leaf.Name) + '</a>';
+            }).join('') + '</div>';
+        }
+
+        return html;
+    }
+
+    function hasKids(cat) {
+        return !!(cat && cat.SubCategories && cat.SubCategories.length);
+    }
+
+    /** Tek sütun: başlık + altındaki ağacın tamamı. */
+    function columnHtml(sub) {
+        return '<div class="megacol">' +
+                   '<a class="megacol__head" href="shop.html?category=' + sub.Id + '">' +
+                       App.utils.escape(sub.Name) + '</a>' +
+                   subtreeHtml(sub.SubCategories) +
+               '</div>';
+    }
+
+    /** Sütun içindeki ağaç — dallı düğüm ara başlık, yaprak bağlantı. */
+    function subtreeHtml(items) {
+        return (items || []).map(function (item) {
+            if (hasKids(item)) {
+                return '<a class="megacol__sub" href="shop.html?category=' + item.Id + '">' +
+                           App.utils.escape(item.Name) + '</a>' +
+                       subtreeHtml(item.SubCategories);
+            }
+            return '<a class="megacol__item" href="shop.html?category=' + item.Id + '">' +
+                       App.utils.escape(item.Name) + '</a>';
         }).join('');
+    }
+
+    function findCat(list, id) {
+        for (var i = 0; i < (list || []).length; i++) {
+            if (String(list[i].Id) === String(id)) return list[i];
+            var deep = findCat(list[i].SubCategories, id);
+            if (deep) return deep;
+        }
+        return null;
+    }
+
+    /** Soldaki başlık seçimi — hem tıklamada hem fare üstüne gelince. */
+    function pickCategory(btn) {
+        var cat = findCat(catTree, btn.dataset.id);
+        if (!cat) return;
+
+        var side = btn.closest('.megamenu__side');
+        if (side) {
+            App.utils.$$('.megaitem', side).forEach(function (item) {
+                item.classList.toggle('is-active', item === btn);
+            });
+        }
+
+        var panel = document.getElementById('megamenu-panel');
+        if (panel) panel.innerHTML = panelHtml(cat);
+    }
+
+    App.actions.register('mega-pick', function (btn) { pickCategory(btn); });
+
+    App.utils.on(document, 'mouseover', '.megaitem', function (e, btn) {
+        if (!hasHover()) return;
+        pickCategory(btn);
+    });
+
+    /** Cihaz gerçekten fareyle mi kullanılıyor. */
+    function hasHover() {
+        return window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    }
+
+    /** Ağacı düz listeye indirir (arama kapsamı seçicisi için). */
+    function flatten(list, depth) {
+        var out = [];
+        (list || []).forEach(function (cat) {
+            out.push({ id: cat.Id, name: cat.Name, depth: depth });
+            if (depth < 2) out = out.concat(flatten(cat.SubCategories, depth + 1));
+        });
+        return out;
     }
 
     /* ============================================================
@@ -297,8 +601,17 @@
     }
 
     Layout.refreshBadges = function () {
-        setBadge('cart-badge', App.cart.count());
-        setBadge('wishlist-badge', App.wishlist.count());
+        var cart = App.cart.count();
+        var wish = App.wishlist.count();
+
+        /* Sepet sütunundaki tutar da sayaçla birlikte güncellenir. */
+        var total = document.getElementById('cart-total');
+        if (total) total.textContent = App.fmt.price(App.cart.total());
+
+        setBadge('cart-badge', cart);
+        setBadge('cart-badge-m', cart);
+        setBadge('wishlist-badge', wish);
+        setBadge('wishlist-badge-m', wish);
         setBadge('compare-badge', App.compare.count());
     };
 
@@ -306,56 +619,66 @@
        AÇILIR MENÜLER
        ============================================================ */
 
-    function bindDropdowns() {
-        var menus = [
-            { act: 'toggle-catmenu', id: 'catmenu' },
-            { act: 'toggle-lang',    id: 'langmenu' },
-            { act: 'toggle-user',    id: 'usermenu' }
-        ];
+    var MENUS = [
+        { act: 'toggle-catmenu', id: 'catmenu' },
+        { act: 'toggle-lang',    id: 'langmenu' },
+        { act: 'toggle-user',    id: 'usermenu' }
+    ];
 
-        menus.forEach(function (m) {
+    function bindDropdowns() {
+        MENUS.forEach(function (m) {
             App.actions.register(m.act, function () {
                 var box = document.getElementById(m.id);
                 if (!box) return;
                 var willOpen = !box.classList.contains('is-open');
 
-                /* Aynı anda tek menü açık kalsın. */
-                menus.forEach(function (other) {
-                    var el = document.getElementById(other.id);
-                    if (el) el.classList.remove('is-open');
-                });
+                closeMenus();
                 box.classList.toggle('is-open', willOpen);
             });
         });
 
-        /* Dışarı tıklayınca kapat. */
+        /* Dışarı tıklayınca kapan. */
         document.addEventListener('click', function (e) {
             if (e.target.closest('[data-act^="toggle-"]')) return;
-            menus.forEach(function (m) {
+            MENUS.forEach(function (m) {
                 var el = document.getElementById(m.id);
                 if (el && !el.contains(e.target)) el.classList.remove('is-open');
             });
         });
 
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeMenus();
+        });
+
         /* Dil seçimi. */
         App.utils.on(document, 'click', '[data-lang]', function (e, btn) {
             App.i18n.set(btn.dataset.lang);
+            closeMenus();
         });
 
-        /* Mobil menü — kategori panelini tam ekran açar. */
+        /* Dar ekranda hamburger kategori panelini açar. */
         App.actions.register('toggle-menu', function () {
             var box = document.getElementById('catmenu');
-            if (box) box.classList.toggle('is-open');
+            if (!box) return;
+            box.classList.toggle('is-open');
+        });
+    }
+
+    function closeMenus() {
+        MENUS.forEach(function (m) {
+            var el = document.getElementById(m.id);
+            if (el) el.classList.remove('is-open');
         });
     }
 
     /* ============================================================
-       ARAMA ÖNERİLERİ
+       ARAMA
        ============================================================ */
 
     function bindSearch() {
         var input = document.getElementById('search-input');
         var panel = document.getElementById('search-panel');
+        var scope = document.getElementById('search-scope');
         var form  = input && input.closest('form');
         if (!input || !panel) return;
 
@@ -363,14 +686,23 @@
 
         var run = App.utils.debounce(function () {
             var term = input.value.trim();
-
             if (term.length < 2) { close(); return; }
 
-            var hits = App.catalog.search(term).slice(0, 6);
+            var list = App.catalog.products;
+
+            /* Kapsam seçiliyse önce o dalın ürünlerine in. */
+            if (scope && scope.value) {
+                var ids = App.catalog.descendantIds(scope.value, App.catalog.categories);
+                list = list.filter(function (p) {
+                    return ids.indexOf(String(p.CategoryId)) !== -1;
+                });
+            }
+
+            var hits = App.catalog.search(term, list).slice(0, 7);
 
             if (!hits.length) {
                 panel.innerHTML = '<div class="search__empty">' +
-                                  App.t('header.searchEmpty', 'Sonuç bulunamadı') + '</div>';
+                                  App.t('shopList.search.noResults', 'Ничего не найдено') + '</div>';
                 panel.classList.add('is-open');
                 return;
             }
@@ -388,11 +720,11 @@
                            '</span>' +
                        '</a>';
             }).join('') +
-            '<a class="search__more" href="shop.html?search=' + encodeURIComponent(term) + '">' +
-                App.t('header.searchMore', 'Tüm sonuçları gör') + '</a>';
+            '<a class="search__more" href="' + searchUrl(input.value.trim(), scope) + '">' +
+                App.t('shopList.search.resultsFound', 'Все результаты') + '</a>';
 
             panel.classList.add('is-open');
-        }, 220);
+        }, 200);
 
         input.addEventListener('input', run);
         input.addEventListener('focus', function () { if (input.value.trim().length >= 2) run(); });
@@ -402,10 +734,10 @@
                 e.preventDefault();
                 var term = input.value.trim();
                 if (term.length < 2) {
-                    App.toast.warning(App.t('shop.minChars', 'En az 2 karakter girin'));
+                    App.toast.warning(App.t('shopList.search.minChars', 'Введите минимум 2 символа'));
                     return;
                 }
-                window.location.href = 'shop.html?search=' + encodeURIComponent(term);
+                window.location.href = searchUrl(term, scope);
             });
         }
 
@@ -415,35 +747,115 @@
         input.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
     }
 
+    function searchUrl(term, scope) {
+        var url = 'shop.html?search=' + encodeURIComponent(term);
+        if (scope && scope.value) url += '&category=' + encodeURIComponent(scope.value);
+        return url;
+    }
+
     /* ============================================================
        KURULUM
        ============================================================ */
 
-    Layout.mount = function () {
-        var headerSlot = document.getElementById('site-header');
-        var footerSlot = document.getElementById('site-footer');
+    /* ------------------------------------------------------------
+       KAPSAYICILAR
+       ------------------------------------------------------------
+       🔴 Başlık `outerHTML` ile DEĞİŞTİRİLMEZ. Dil değiştiğinde eski
+       düğüm DOM'dan koparılıp yerine yenisi konuyordu; sticky başlık
+       yeniden hesaplanırken düzen dağılıyor, arama alanı satırı
+       taşırıyordu. Artık `#site-header` sabit bir kapsayıcı olarak
+       kalır ve yalnız İÇİ yenilenir — dış düğüm hiç değişmediği için
+       yerleşim de bozulmaz.
+       ------------------------------------------------------------ */
+    var headerSlot = null;
+    var footerSlot = null;
 
-        if (headerSlot) headerSlot.outerHTML = headerHtml();
-        if (footerSlot) footerSlot.outerHTML = footerHtml();
+    Layout.mount = function () {
+        headerSlot = document.getElementById('site-header');
+        footerSlot = document.getElementById('site-footer');
+
+        if (headerSlot) headerSlot.innerHTML = headerHtml();
+        if (footerSlot) footerSlot.innerHTML = footerHtml();
 
         bindDropdowns();
+        bindAll();
+    };
+
+    /** Başlığı yeniden çiz (dil / oturum değişiminde). */
+    function repaintHeader() {
+        if (!headerSlot) return;
+        headerSlot.innerHTML = headerHtml();
+        bindAll();
+        renderCategoryMenu(catTree);
+    }
+
+    /** Header/footer her yeniden çizildiğinde çalışacak bağlamalar. */
+    function bindAll() {
+        bindCatHover();
         bindSearch();
         Layout.refreshBadges();
         markActiveNav();
         bindStickyShadow();
-        bindNewsletter();
-    };
+    }
+
+    /**
+     * Kategori panelini FAREYLE aç, GEÇ kapat.
+     *
+     * Dokunmatik cihazda "üzerine gelme" yoktur; orada düğme eskisi
+     * gibi tıklamayla açılıp kapanır. Farelı cihazda menü üzerine
+     * gelince açılır ve fare ayrıldıktan 150 ms sonra kapanır —
+     * düğmeyle panel arasındaki boşluğu geçerken kapanmasın diye.
+     */
+    function bindCatHover() {
+        var box = document.getElementById('catmenu');
+        if (!box || box.dataset.hoverBound === '1') return;
+        box.dataset.hoverBound = '1';
+
+        function open() {
+            clearTimeout(closeTimer);
+            closeMenus();
+            box.classList.add('is-open');
+        }
+        function closeLater() {
+            clearTimeout(closeTimer);
+            closeTimer = setTimeout(function () { box.classList.remove('is-open'); }, 150);
+        }
+
+        box.addEventListener('mouseenter', function () { if (hasHover()) open(); });
+        box.addEventListener('mouseleave', function () { if (hasHover()) closeLater(); });
+
+        /* Panel gövdesine girildiğinde bekleyen kapanma iptal olur. */
+        var panel = document.getElementById('catmenu-panel');
+        if (panel) {
+            panel.addEventListener('mouseenter', function () { clearTimeout(closeTimer); });
+            panel.addEventListener('mouseleave', function () { if (hasHover()) closeLater(); });
+        }
+
+        var btn = box.querySelector('.catmenu__btn');
+        if (btn) {
+            btn.addEventListener('click', function (e) {
+                if (!hasHover()) return;          /* dokunmatikte aç/kapa kalsın */
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = 'shop.html';
+            }, true);
+        }
+    }
+
+    function currentPage() {
+        return window.location.pathname.split('/').pop() || 'index.html';
+    }
 
     /** Bulunduğun sayfanın menü bağlantısını vurgula. */
     function markActiveNav() {
-        var here = window.location.pathname.split('/').pop() || 'index.html';
+        var here = currentPage();
         App.utils.$$('.navlink').forEach(function (link) {
             var href = link.getAttribute('href').split('?')[0];
-            if (href === here) link.classList.add('is-active');
+            if (href === here && !link.classList.contains('is-active')) link.classList.add('is-active');
         });
     }
 
-    /** Sayfa kaydırılınca header'a gölge — katman hissi. */
+    /** Kaydırınca başlığa gölge — katman hissi. */
     function bindStickyShadow() {
         var header = document.getElementById('header');
         if (!header) return;
@@ -456,37 +868,19 @@
         onScroll();
     }
 
-    function bindNewsletter() {
-        var form = document.getElementById('newsletter-form');
-        if (!form) return;
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            App.toast.success(App.t('footer.subscribed', 'Kaydınız alındı'));
-            form.reset();
-        });
-    }
-
-    /* Kategori verisi geldiğinde menü dolar. */
+    /* Kategori verisi geldiğinde menü + arama kapsamı dolar. */
     Layout.setCategories = renderCategoryMenu;
 
     /* Durum değişimlerinde rozetler kendiliğinden tazelenir. */
     App.bus.on(App.bus.EVENTS.CART_CHANGED,     Layout.refreshBadges);
     App.bus.on(App.bus.EVENTS.WISHLIST_CHANGED, Layout.refreshBadges);
     App.bus.on(App.bus.EVENTS.COMPARE_CHANGED,  Layout.refreshBadges);
+    App.bus.on(App.bus.EVENTS.AUTH_CHANGED, repaintHeader);
 
-    /* Dil değişince header/footer yeniden çizilir (metinler onların içinde). */
+    /* Dil değişince başlık/alt bilgi yeniden çizilir. */
     App.bus.on(App.bus.EVENTS.LANG_CHANGED, function () {
-        var header = document.querySelector('.header');
-        var footer = document.querySelector('.footer');
-        if (header) header.outerHTML = headerHtml();
-        if (footer) footer.outerHTML = footerHtml();
-
-        bindSearch();
-        Layout.refreshBadges();
-        markActiveNav();
-        bindStickyShadow();
-        bindNewsletter();
-        renderCategoryMenu(App.catalog.categories);
+        repaintHeader();
+        if (footerSlot) footerSlot.innerHTML = footerHtml();
     });
 
     App.layout = Layout;

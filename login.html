@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Вход и регистрация — FORES</title>
+    <meta name="description" content="Вход в личный кабинет и регистрация.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body data-page="login" data-title-i18n="meta.login">
+
+<div id="site-header"></div>
+
+<main class="container">
+
+    <nav class="crumbs" aria-label="breadcrumb">
+        <a href="index.html" data-i18n="login.breadcrumbHome">Главная</a>
+        <span class="crumbs__sep">/</span>
+        <span class="crumbs__current" data-i18n="login.breadcrumbAccount">Мой аккаунт</span>
+        </nav>
+
+    <div class="tabs tabs--center" style="max-width:560px;margin:0 auto">
+        <button class="tab is-active" type="button" data-act="auth-tab" data-tab="signin"
+                data-i18n="login.signIn">Войти</button>
+        <button class="tab" type="button" data-act="auth-tab" data-tab="signup"
+                data-i18n="login.signUp">Зарегистрироваться</button>
+    </div>
+
+    <div class="auth-wrap">
+
+        <!-- ============ GİRİŞ ============ -->
+        <div class="auth-card" data-auth-panel="signin">
+            <h2 data-i18n="login.signIn">Войти</h2>
+            <p class="auth-card__sub" data-i18n="checkout.returningCustomerText"></p>
+
+            <div class="alert alert--info mb-4" id="login-result" hidden></div>
+
+            <form id="login-form" novalidate>
+                <div class="field">
+                    <label class="label label--req" for="login-email" data-i18n="login.email">Электронная почта *</label>
+                    <input class="input" id="login-email" type="email" autocomplete="email" required>
+                </div>
+
+                <div class="field field--pw">
+                    <label class="label label--req" for="login-password" data-i18n="login.password">Пароль *</label>
+                    <input class="input" id="login-password" type="password" autocomplete="current-password" required>
+                    <button type="button" data-act="toggle-password" aria-label="show">
+                        <i class="ico"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg></i>
+                    </button>
+                </div>
+
+                <div class="flex items-c justify-b wrap gap-3 mb-4">
+                    <label class="check">
+                        <input type="checkbox" id="login-remember">
+                        <span class="check__box"></span>
+                        <span data-i18n="login.rememberMe">Запомнить меня</span>
+                    </label>
+                    <button class="btn--link" type="button" data-act="forgot-password"
+                            data-i18n="login.lostPassword">Забыли пароль?</button>
+                </div>
+
+                <button class="btn btn--primary btn--lg btn--block" type="submit" id="login-submit"
+                        data-i18n="login.signInButton">Войти</button>
+            </form>
+        </div>
+
+        <!-- ============ KAYIT ============ -->
+        <div class="auth-card" data-auth-panel="signup" hidden>
+            <h2 data-i18n="login.signUp">Зарегистрироваться</h2>
+            <p class="auth-card__sub" data-i18n="footer.registerDesc"></p>
+
+            <div class="alert alert--warn" id="registration-closed" hidden>
+                <i class="ico"><svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 16v-4M12 8h.01"/></svg></i>
+                <span>
+                    <b data-i18n="login.registrationClosedTitle">Регистрация временно закрыта</b><br>
+                    <span data-i18n="login.registrationClosedText"></span>
+                </span>
+            </div>
+
+            <div class="alert alert--info mb-4" id="register-result" hidden></div>
+
+            <form id="register-form" novalidate>
+
+                <div class="field" id="acct-type-group">
+                    <span class="label label--req" data-i18n="login.accountType">Тип аккаунта *</span>
+
+                    <label class="pick is-active" id="opt-retail">
+                        <input type="radio" name="account-type" value="retail" id="acct-retail" checked hidden>
+                        <span class="pick__icon">
+                            <i class="ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg></i>
+                        </span>
+                        <span class="grow">
+                            <span class="pick__title" data-i18n="login.individual">Физическое лицо</span>
+                        </span>
+                    </label>
+
+                    <label class="pick" id="opt-company">
+                        <input type="radio" name="account-type" value="company" id="acct-company" hidden>
+                        <span class="pick__icon">
+                            <i class="ico"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></i>
+                        </span>
+                        <span class="grow">
+                            <span class="pick__title" data-i18n="login.company">Юридическое лицо</span>
+                            <span class="pick__desc" data-i18n="login.iinHelp">Обязательно для регистрации компании</span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field" id="field-name">
+                        <label class="label label--req" for="reg-name" data-i18n="login.firstName">Имя *</label>
+                        <input class="input" id="reg-name" type="text" autocomplete="given-name">
+                    </div>
+
+                    <div class="field" id="field-surname">
+                        <label class="label label--req" for="reg-surname" data-i18n="login.lastName">Фамилия *</label>
+                        <input class="input" id="reg-surname" type="text" autocomplete="family-name">
+                    </div>
+
+                    <div class="field field--full" id="field-iin" hidden>
+                        <label class="label label--req" for="reg-iin" data-i18n="login.iin">ИИН / БИН *</label>
+                        <input class="input" id="reg-iin" type="text" inputmode="numeric" maxlength="12">
+                        <span class="field__hint" data-i18n="login.iinHelp"></span>
+                    </div>
+
+                    <div class="field">
+                        <label class="label label--req" for="reg-email" data-i18n="login.email">Электронная почта *</label>
+                        <input class="input" id="reg-email" type="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="field">
+                        <label class="label label--req" for="reg-phone" data-i18n="login.phone">Номер телефона *</label>
+                        <input class="input" id="reg-phone" type="tel" autocomplete="tel"
+                               data-i18n-attr="placeholder:login.phonePlaceholder" required>
+                    </div>
+
+                    <div class="field field--full field--pw">
+                        <label class="label label--req" for="reg-password" data-i18n="login.password">Пароль *</label>
+                        <input class="input" id="reg-password" type="password" minlength="6"
+                               autocomplete="new-password" required>
+                        <button type="button" data-act="toggle-password" aria-label="show">
+                            <i class="ico"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg></i>
+                        </button>
+                        <span class="field__hint" data-i18n="login.passwordMinLength">Минимум 6 символов</span>
+                    </div>
+                </div>
+
+                <label class="check mb-4">
+                    <input type="checkbox" id="reg-agree">
+                    <span class="check__box"></span>
+                    <span>
+                        <span data-i18n="login.agreePolicy">Я согласен с</span>
+                        <a href="privacy.html" data-i18n="login.privacyPolicy">политикой конфиденциальности</a>
+                    </span>
+                </label>
+
+                <button class="btn btn--primary btn--lg btn--block" type="submit" id="register-submit"
+                        data-i18n="login.signUpButton">Зарегистрироваться</button>
+
+                <p class="t-xs t-dim mt-3 mb-0" data-i18n="login.privacyText"></p>
+            </form>
+        </div>
+    </div>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/loader.js"></script>
+</body>
+</html>

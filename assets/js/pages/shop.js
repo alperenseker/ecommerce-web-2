@@ -24,8 +24,7 @@ App.definePage('shop', async function (ctx) {
 
     /* --- açılış --- */
     F.readUrl();
-    App.card.skeletons(elProducts, F.state.pageSize > 12 ? 12 : F.state.pageSize);
-    buildPageSizeOptions();
+    App.card.skeletons(elProducts, 12);
     syncControls();
 
     var data = await ctx.catalog;
@@ -77,10 +76,10 @@ App.definePage('shop', async function (ctx) {
             elProducts.innerHTML =
                 '<div class="empty" style="grid-column:1/-1">' +
                     '<div class="empty__icon">' + App.icon('search', 26) + '</div>' +
-                    '<h3 class="empty__title">' + App.t('shop.noResults', 'Товары не найдены') + '</h3>' +
-                    '<p class="empty__text">' + App.t('shop.noResultsText', '') + '</p>' +
+                    '<h3 class="empty__title">' + App.t('shopList.app.noProducts', 'Товары не найдены') + '</h3>' +
+                    '<p class="empty__text">' + App.t('shopList.app.noResults', '') + '</p>' +
                     '<button class="btn btn--steel" type="button" data-act="clear-filters">' +
-                        App.t('shop.clearFilters', 'Сбросить фильтры') + '</button>' +
+                        App.t('shop.sidebar.cleanAll', 'Очистить все') + '</button>' +
                 '</div>';
             return;
         }
@@ -93,9 +92,9 @@ App.definePage('shop', async function (ctx) {
         var start = results.length ? (F.state.page - 1) * F.state.pageSize + 1 : 0;
         var end   = Math.min(F.state.page * F.state.pageSize, results.length);
 
-        elCount.innerHTML = App.t('shop.showing', 'Показано') + ' <b>' + start + '–' + end + '</b> ' +
-                            App.t('common.of', 'из') + ' <b>' + results.length + '</b> ' +
-                            App.t('shop.results', 'товаров');
+        elCount.innerHTML = App.t('shop.pagination.showing', 'Показано') + ' <b>' + start + '–' + end + '</b> ' +
+                            App.t('shop.pagination.of', 'из') + ' <b>' + results.length + '</b> ' +
+                            App.t('shop.pagination.products', 'Товаров');
     }
 
     /**
@@ -143,13 +142,17 @@ App.definePage('shop', async function (ctx) {
         var el = document.getElementById('crumb-current');
         if (!el) return;
 
+        var picked = F.state.categories;
+
         if (F.state.search) {
-            el.textContent = App.t('shop.searchResults', 'Результаты поиска');
-        } else if (F.state.category) {
-            var cat = App.catalog.findCategory(F.state.category);
-            el.textContent = cat ? cat.Name : App.t('shop.title', 'Каталог');
+            el.textContent = App.t('common.search', 'Поиск');
+        } else if (picked.length === 1) {
+            var cat = App.catalog.findCategory(picked[0]);
+            el.textContent = cat ? cat.Name : App.t('menu.shop', 'Магазин');
+        } else if (picked.length > 1) {
+            el.textContent = App.t('menu.categories', 'Категории') + ' · ' + picked.length;
         } else {
-            el.textContent = App.t('shop.title', 'Каталог');
+            el.textContent = App.t('menu.shop', 'Магазин');
         }
     }
 
@@ -167,17 +170,9 @@ App.definePage('shop', async function (ctx) {
        DENETİMLER
        ============================================================ */
 
-    function buildPageSizeOptions() {
-        var sel = document.getElementById('pagesize-select');
-        sel.innerHTML = App.config.PAGE_SIZE_OPTIONS.map(function (n) {
-            return '<option value="' + n + '">' + n + '</option>';
-        }).join('');
-    }
-
     /** Durum → form alanları (sayfa yenilenince kutular dolu gelsin). */
     function syncControls() {
         document.getElementById('sort-select').value = F.state.sort;
-        document.getElementById('pagesize-select').value = F.state.pageSize;
         document.getElementById('price-min').value = F.state.minPrice === null ? '' : F.state.minPrice;
         document.getElementById('price-max').value = F.state.maxPrice === null ? '' : F.state.maxPrice;
         document.getElementById('filter-in-stock').checked  = F.state.stock === 'in';
@@ -193,10 +188,13 @@ App.definePage('shop', async function (ctx) {
 
     function bindEvents() {
 
+        /* Kategori tıklaması SEÇİMİ AÇAR/KAPATIR; birden çok kategori
+           aynı anda işaretlenebilir. Kenar çubuğu açık kalır ki
+           kullanıcı üst üste birkaç dal seçebilsin. */
         App.actions.register('pick-category', function (btn) {
-            F.state.category = btn.dataset.id || null;
+            F.toggleCategory(btn.dataset.id || '');
             changed();
-            closeMobileAside();
+            F.renderTree(elTree, App.catalog.categories);
         });
 
         App.actions.register('pick-price', function (btn) {
@@ -232,12 +230,22 @@ App.definePage('shop', async function (ctx) {
             syncControls();
             F.writeUrl();
             refresh();
+            F.renderTree(elTree, App.catalog.categories);
         });
 
         App.actions.register('drop-filter', function (btn) {
             var key = btn.dataset.key;
+
+            /* 'category:<id>' → yalnız o kategoriyi çıkar. */
+            if (key.indexOf('category:') === 0) {
+                F.dropCategory(key.slice(9));
+                syncControls();
+                changed();
+                F.renderTree(elTree, App.catalog.categories);
+                return;
+            }
+
             if (key === 'search')   F.state.search = '';
-            if (key === 'category') F.state.category = null;
             if (key === 'price')    { F.state.minPrice = null; F.state.maxPrice = null; }
             if (key === 'stock')    F.state.stock = null;
             syncControls();
@@ -259,11 +267,6 @@ App.definePage('shop', async function (ctx) {
 
         document.getElementById('sort-select').addEventListener('change', function () {
             F.state.sort = this.value;
-            changed();
-        });
-
-        document.getElementById('pagesize-select').addEventListener('change', function () {
-            F.state.pageSize = parseInt(this.value, 10) || App.config.PAGE_SIZE;
             changed();
         });
 

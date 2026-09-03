@@ -135,14 +135,14 @@
 
         if (inStock) {
             return { amount: amount, inStock: true, canOrder: true,
-                     level: 'in', label: App.t('stock.inStock', 'Stokta') };
+                     level: 'in', label: App.t('shopList.card.inStock', App.t('stock.inStock', 'В наличии')) };
         }
         if (canOrderWithoutStock) {
             return { amount: amount, inStock: false, canOrder: true,
-                     level: 'pre', label: App.t('stock.preOrder', 'Ön sipariş') };
+                     level: 'pre', label: App.t('shopList.card.orderWithoutStock', App.t('stock.preOrder', 'Предзаказ')) };
         }
         return { amount: amount, inStock: false, canOrder: false,
-                 level: 'out', label: App.t('stock.outOfStock', 'Tükendi') };
+                 level: 'out', label: App.t('shopList.card.outOfStock', App.t('stock.outOfStock', 'Нет в наличии')) };
     };
 
     /* ============================================================
@@ -237,7 +237,10 @@
 
     /** Kısa açıklama (kartlar için kırpılmış). */
     M.shortDesc = function (product, max) {
-        var text = pick(product, 'ShortDescription', 'shortDescription') || '';
+        /* 1C yalnız `Description` gönderiyor; kısa alan boşsa uzun
+           açıklamadan kırpılır ki kart satırı boş kalmasın. */
+        var text = pick(product, 'ShortDescription', 'shortDescription') ||
+                   pick(product, 'Description', 'description') || '';
         return App.fmt.truncate(text, max || 90);
     };
 
@@ -246,9 +249,9 @@
         var out = [];
         var discount = M.discountPercent(product);
 
-        if (discount > 0) out.push({ type: 'gold', text: '-' + discount + '%' });
-        if (pick(product, 'IsNewArrival', 'isNewArrival')) out.push({ type: 'acc', text: App.t('badge.new', 'Yeni') });
-        if (pick(product, 'IsFeatured', 'isFeatured'))     out.push({ type: 'chrome', text: App.t('badge.featured', 'Öne çıkan') });
+        if (discount > 0) out.push({ type: 'deal', text: '-' + discount + '%' });
+        if (pick(product, 'IsNewArrival', 'isNewArrival')) out.push({ type: 'new', text: App.t('badge.new', 'Новинка') });
+        if (pick(product, 'IsFeatured', 'isFeatured'))     out.push({ type: 'hot', text: App.t('badge.featured', 'Хит') });
 
         return out;
     };

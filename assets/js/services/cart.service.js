@@ -244,7 +244,13 @@
         }
     };
 
-    Cart.clear = async function () {
+    /**
+     * Sepeti boşalt.
+     * @param {boolean} [silent] sipariş sonrası temizlikte true verilir:
+     *        sunucu sepeti zaten tüketti, "sepet temizlendi" balonu
+     *        müşteriyi "siparişim silindi mi?" diye tereddüde düşürüyor.
+     */
+    Cart.clear = async function (silent) {
         var userId = App.auth.userId();
         if (!userId) return false;
 
@@ -253,12 +259,16 @@
             if (!res.success) throw new Error(res.message);
 
             Cart.items = [];
-            App.toast.success(App.t('cart.cleared', 'Sepet temizlendi'));
+            if (!silent) App.toast.success(App.t('cart.messages.cartCleared', App.t('cart.cleared', 'Корзина очищена')));
             announce();
             return true;
 
         } catch (error) {
-            App.toast.error(App.t('cart.clearError', 'Sepet temizlenemedi'));
+            /* Sipariş sonrası sessiz temizlikte hata da sessiz geçer:
+               sunucu sepeti zaten tüketmiş olabilir. */
+            if (!silent) App.toast.error(App.t('cart.messages.clearFailed', App.t('cart.clearError', '')));
+            Cart.items = silent ? [] : Cart.items;
+            announce();
             return false;
         }
     };

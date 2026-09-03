@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 404 iç istekle sunuluyor: adres değişmez, göreli yollar kırılır.
+         Bu satır olmadan /a/b/c isteğinde assets/… yolu bulunamaz. -->
+    <base href="/">
+    <title>Страница не найдена — FORES</title>
+    <meta name="description" content="404">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body data-page="content" data-title-i18n="meta.notFound">
+
+<div id="site-header"></div>
+
+<main class="container">
+
+    <div class="card" style="margin-top:40px">
+        <div class="empty" style="padding:72px 24px">
+            <div class="empty__icon" style="width:88px;height:88px;font-size:34px;font-weight:800;color:var(--txt-3)">404</div>
+            <h1 class="empty__title" data-i18n="notFound.title">Эта страница не найдена</h1>
+            <p class="empty__text" data-i18n="notFound.text"></p>
+
+            <div class="flex gap-3 wrap justify-c mt-3">
+                <a class="btn btn--primary" href="/index.html" data-i18n="notFound.home">На главную</a>
+                <a class="btn btn--ghost" href="/shop.html" data-i18n="notFound.shop">Перейти в каталог</a>
+            </div>
+
+            <div class="mt-6">
+                <span class="t-sm t-dim" data-i18n="notFound.helpful">Возможно, вы искали:</span>
+                <div class="flex gap-3 wrap justify-c mt-2">
+                    <a href="/my-account.html" data-i18n="header.myAccount">Мой аккаунт</a>
+                    <a href="/cart.html" data-i18n="common.cart">Корзина</a>
+                    <a href="/delivery.html" data-i18n="footer.deliveryInfo">Доставка</a>
+                    <a href="/contact-us.html" data-i18n="header.contactUs">Контакты</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/loader.js"></script>
+</body>
+</html>

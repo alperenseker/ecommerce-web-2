@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Fores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F5F1;
+    --surface:#FFFFFF;
+    --ink:#191D1B;
+    --ink-soft:#5C6560;
+    --ink-faint:#8A9089;
+    --line:#DEDBD1;
+    --steel:#2C4A63;
+    --steel-deep:#1D3245;
+    --brass:#A9793E;
+    --brass-soft:#F0E4CF;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--steel);}
+
+  /* Top bar */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+  }
+  .topbar-inner{
+    max-width:1180px;
+    margin:0 auto;
+    padding:20px 32px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .brand-mark{
+    width:34px;height:34px;
+    border:1.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:13px;
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:0.01em;
+  }
+  .breadcrumb{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    color:var(--ink-faint);
+    letter-spacing:0.02em;
+  }
+  .breadcrumb a{color:var(--ink-faint);text-decoration:none;}
+  .breadcrumb a:hover{color:var(--steel);}
+  .breadcrumb .sep{margin:0 8px;color:var(--line);}
+  .breadcrumb .current{color:var(--ink);}
+
+  /* Doc header */
+  .doc-header{
+    max-width:1180px;
+    margin:0 auto;
+    padding:56px 32px 40px;
+  }
+  .doc-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--brass);
+    background:var(--brass-soft);
+    padding:5px 10px;
+    margin-bottom:22px;
+  }
+  h1{
+    font-size:38px;
+    line-height:1.15;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+    max-width:14ch;
+  }
+  .doc-lede{
+    color:var(--ink-soft);
+    font-size:17px;
+    max-width:58ch;
+    margin:0 0 18px;
+  }
+  .doc-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    color:var(--ink-faint);
+  }
+
+  /* Layout */
+  .layout{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 32px 100px;
+    display:grid;
+    grid-template-columns:240px 1fr;
+    gap:56px;
+    align-items:start;
+  }
+  nav.toc{
+    position:sticky;
+    top:28px;
+    border-left:1px solid var(--line);
+    padding-left:20px;
+  }
+  nav.toc .toc-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:14px;
+  }
+  nav.toc ol{
+    list-style:none;
+    margin:0;padding:0;
+  }
+  nav.toc li{margin-bottom:2px;}
+  nav.toc a{
+    display:flex;
+    gap:10px;
+    text-decoration:none;
+    color:var(--ink-soft);
+    font-size:13.5px;
+    padding:7px 0;
+    border-left:2px solid transparent;
+    padding-left:10px;
+    margin-left:-12px;
+    transition:color .15s, border-color .15s;
+  }
+  nav.toc a:hover{color:var(--steel);border-left-color:var(--brass);}
+  nav.toc a .n{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--ink-faint);
+    flex-shrink:0;
+  }
+  nav.toc .toc-other{
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+  nav.toc .toc-other a{color:var(--steel);font-weight:500;}
+
+  main{min-width:0;}
+  section.clause{
+    padding:36px 0;
+    border-top:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+  section.clause:first-of-type{border-top:1px solid var(--line);}
+  .clause-head{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:16px;
+  }
+  .clause-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--brass);
+    letter-spacing:0.03em;
+    flex-shrink:0;
+    padding-top:2px;
+  }
+  .clause-head h2{
+    font-size:21px;
+    margin:0;
+    letter-spacing:-0.005em;
+  }
+  .clause-body{
+    padding-left:calc(13px + 16px);
+    color:var(--ink);
+  }
+  .clause-body p{margin:0 0 14px;}
+  .clause-body ul{
+    margin:0 0 14px;
+    padding-left:20px;
+  }
+  .clause-body li{margin-bottom:7px;color:var(--ink);}
+  .clause-body p:last-child, .clause-body ul:last-child{margin-bottom:0;}
+
+  .contact-card{
+    margin-top:14px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:20px 22px;
+    font-size:14.5px;
+  }
+  .contact-card .co{font-weight:600;margin-bottom:6px;}
+  .contact-card .row{color:var(--ink-soft);margin-bottom:3px;}
+  .contact-card a{color:var(--steel);text-decoration:none;}
+  .contact-card a:hover{text-decoration:underline;}
+
+  footer{
+    border-top:1px solid var(--line);
+    background:var(--surface);
+  }
+  .footer-inner{
+    max-width:1180px;
+    margin:0 auto;
+    padding:28px 32px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .footer-inner, .footer-inner a{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    text-decoration:none;
+  }
+  .footer-links a{margin-left:18px;}
+  .footer-links a:hover{color:var(--steel);}
+
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;}
+    nav.toc{position:static;border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:20px;}
+    h1{font-size:30px;}
+    .clause-body{padding-left:0;}
+    .clause-head{flex-direction:column;gap:4px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="https://fores.kz/b2b/index.html">
+        <div class="brand-mark">F</div>
+        <div class="brand-name">FORES</div>
+      </a>
+      <div class="breadcrumb">
+        <a href="https://fores.kz/b2b/index.html">Home</a>
+        <span class="sep">/</span>
+        <span class="current">Privacy Policy</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-header">
+    <span class="doc-tag">Legal · Data Protection</span>
+    <h1>Privacy Policy</h1>
+    <p class="doc-lede">How TOO Fores collects, uses, and protects your personal data across our website and mobile application.</p>
+    <div class="doc-meta">Last updated: 27.04.2026 · Applies to fores.kz and the Fores mobile app</div>
+  </div>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Table of contents">
+      <div class="toc-label">On this page</div>
+      <ol>
+        <li><a href="#s1"><span class="n">01</span>Data Controller</a></li>
+        <li><a href="#s2"><span class="n">02</span>Data We Collect</a></li>
+        <li><a href="#s3"><span class="n">03</span>Purpose of Processing</a></li>
+        <li><a href="#s4"><span class="n">04</span>Sharing & Third Parties</a></li>
+        <li><a href="#s5"><span class="n">05</span>Cookies & Tracking</a></li>
+        <li><a href="#s6"><span class="n">06</span>Data Retention</a></li>
+        <li><a href="#s7"><span class="n">07</span>Your Rights</a></li>
+        <li><a href="#s8"><span class="n">08</span>Contact Us</a></li>
+      </ol>
+      <div class="toc-other">
+        <a href="account-deletion.html">→ Account Deletion</a>
+      </div>
+    </nav>
+
+    <main>
+      <p style="color:var(--ink-soft); margin:0 0 8px;">Your Privacy Matters to Us. This Privacy Policy explains how Fores collects, uses, and protects your personal data when you use our website and services. We are committed to ensuring your privacy is protected in accordance with applicable laws.</p>
+
+      <section class="clause" id="s1">
+        <div class="clause-head">
+          <span class="clause-num">§ 01</span>
+          <h2>Data Controller</h2>
+        </div>
+        <div class="clause-body">
+          <p>The data controller responsible for your personal data is TOO FORES, registered in the Republic of Kazakhstan. By using our website at fores.kz or our mobile application, you agree to the terms of this Privacy Policy.</p>
+          <p>If you have any questions about how we handle your data, you may contact us at any time through the contact details provided in Section 8 of this policy.</p>
+        </div>
+      </section>
+
+      <section class="clause" id="s2">
+        <div class="clause-head">
+          <span class="clause-num">§ 02</span>
+          <h2>Data We Collect</h2>
+        </div>
+        <div class="clause-body">
+          <p>When you register or use our platform, we may collect the following personal data:</p>
+          <ul>
+            <li>Full name (first name and last name)</li>
+            <li>Email address</li>
+            <li>Phone number</li>
+            <li>IIN / BIN (for company accounts)</li>
+            <li>Delivery address</li>
+            <li>Purchase and order history</li>
+            <li>Device and browser information (cookies, IP address)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="clause" id="s3">
+        <div class="clause-head">
+          <span class="clause-num">§ 03</span>
+          <h2>Purpose of Data Processing</h2>
+        </div>
+        <div class="clause-body">
+          <p>We use your personal data for the following purposes:</p>
+          <ul>
+            <li>To process your orders and deliver products</li>
+            <li>To manage your account and provide customer support</li>
+            <li>To send order confirmations and updates via email or SMS</li>
+            <li>To improve our website and services based on usage patterns</li>
+            <li>To comply with legal obligations under Kazakhstani law</li>
+            <li>To prevent fraud and ensure the security of our platform</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="clause" id="s4">
+        <div class="clause-head">
+          <span class="clause-num">§ 04</span>
+          <h2>Data Sharing &amp; Third Parties</h2>
+        </div>
+        <div class="clause-body">
+          <p>We do not sell or rent your personal data to third parties. Your data may be shared only in the following limited circumstances:</p>
+          <ul>
+            <li>With logistics and courier partners to fulfill your delivery</li>
+            <li>With payment processors to handle transactions securely</li>
+            <li>With government or regulatory authorities when required by law</li>
+            <li>With trusted service providers who assist us in operating the platform, under strict confidentiality agreements</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="clause" id="s5">
+        <div class="clause-head">
+          <span class="clause-num">§ 05</span>
+          <h2>Cookies &amp; Tracking</h2>
+        </div>
+        <div class="clause-body">
+          <p>Our website uses cookies to enhance your browsing experience, remember your preferences (such as language settings), and analyze how visitors use our site. You can control or disable cookies through your browser settings. Please note that disabling certain cookies may affect the functionality of the website.</p>
+          <ul>
+            <li><strong>Essential cookies:</strong> Required for the site to function properly (login session, cart)</li>
+            <li><strong>Preference cookies:</strong> Store your language and display settings</li>
+            <li><strong>Analytics cookies:</strong> Help us understand how our site is used (anonymized)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="clause" id="s6">
+        <div class="clause-head">
+          <span class="clause-num">§ 06</span>
+          <h2>Data Retention</h2>
+        </div>
+        <div class="clause-body">
+          <p>We retain your personal data only for as long as necessary to fulfill the purposes described in this policy, or as required by applicable law. Account data is retained for the duration of your account's activity and for a reasonable period thereafter.</p>
+          <p>You may request the deletion of your account and associated data at any time — see our <a href="account-deletion.html">Account Deletion</a> page for instructions. Certain data may be retained longer if required for legal, tax, or audit purposes.</p>
+        </div>
+      </section>
+
+      <section class="clause" id="s7">
+        <div class="clause-head">
+          <span class="clause-num">§ 07</span>
+          <h2>Your Rights</h2>
+        </div>
+        <div class="clause-body">
+          <p>As a user of our platform, you have the following rights regarding your personal data:</p>
+          <ul>
+            <li><strong>Right of access:</strong> You may request a copy of the data we hold about you</li>
+            <li><strong>Right to rectification:</strong> You may request correction of inaccurate or incomplete data</li>
+            <li><strong>Right to erasure:</strong> You may request deletion of your personal data</li>
+            <li><strong>Right to object:</strong> You may object to the processing of your data in certain circumstances</li>
+            <li><strong>Right to withdraw consent:</strong> Where processing is based on consent, you may withdraw it at any time</li>
+          </ul>
+          <p>To exercise any of these rights, please contact us using the details below.</p>
+        </div>
+      </section>
+
+      <section class="clause" id="s8">
+        <div class="clause-head">
+          <span class="clause-num">§ 08</span>
+          <h2>Contact Us</h2>
+        </div>
+        <div class="clause-body">
+          <p>If you have any questions, concerns, or requests regarding this Privacy Policy or the processing of your personal data, please contact us:</p>
+          <div class="contact-card">
+            <div class="co">TOO FORES</div>
+            <div class="row">Kazakhstan, Almaty</div>
+            <div class="row">Email: <a href="mailto:info@fores.kz">info@fores.kz</a></div>
+            <div class="row">Working hours: Mon–Fri, 09:00–18:00 (UTC+5)</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2026 TOO FORES</div>
+      <div class="footer-links">
+        <a href="https://fores.kz/b2b/index.html">Home</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="account-deletion.html">Account Deletion</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

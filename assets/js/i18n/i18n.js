@@ -21,11 +21,41 @@
     var dicts = {};        // { tr: {...}, ru: {...} }
     var current = null;
 
+    /**
+     * İki sözlüğü derinlemesine birleştirir. Dizi ve metinler
+     * doğrudan değiştirilir; yalnız düz nesneler iç içe girer.
+     */
+    function deepMerge(base, extra) {
+        Object.keys(extra).forEach(function (key) {
+            var next = extra[key];
+            var prev = base[key];
+
+            if (next && typeof next === 'object' && !Array.isArray(next) &&
+                prev && typeof prev === 'object' && !Array.isArray(prev)) {
+                base[key] = deepMerge(prev, next);
+            } else {
+                base[key] = next;
+            }
+        });
+        return base;
+    }
+
     var I18N = {
 
         /** Sözlük dosyaları kendini bununla kaydeder. */
         register: function (lang, dict) {
             dicts[lang] = dict;
+        },
+
+        /**
+         * Var olan sözlüğün ÜSTÜNE bindirir (derin birleştirme).
+         * `<lang>.data.js` — kaynak projeden birebir alınan metinler —
+         * bununla yüklenir. Çakışan anahtarda SONRA gelen kazanır, yani
+         * kaynak projedeki cümle geçerlidir; yalnız orada bulunmayan
+         * anahtarlar temel sözlükten gelmeye devam eder.
+         */
+        merge: function (lang, dict) {
+            dicts[lang] = deepMerge(dicts[lang] || {}, dict || {});
         },
 
         get lang() { return current; },
@@ -57,20 +87,36 @@
          * Bulunamazsa `fallback`, o da yoksa anahtarın kendisi döner —
          * ekranda boşluk yerine ne eksik olduğu görünür.
          */
-        t: function (key, fallback) {
+        t: function (key, fallback, params) {
             var dict = dicts[current];
-            if (!dict) return fallback !== undefined ? fallback : key;
-
             var value = dict;
             var parts = String(key).split('.');
 
-            for (var i = 0; i < parts.length; i++) {
+            for (var i = 0; dict && i < parts.length; i++) {
                 value = value ? value[parts[i]] : undefined;
                 if (value === undefined) break;
             }
 
-            if (typeof value === 'string') return value;
-            return fallback !== undefined ? fallback : key;
+            var out = (typeof value === 'string')
+                ? value
+                : (fallback !== undefined ? fallback : key);
+
+            /* {name} biçimindeki yer tutucular doldurulur:
+               t('cart.splitNote', '', { count: 2 })  */
+            if (params) {
+                Object.keys(params).forEach(function (name) {
+                    out = out.split('{' + name + '}').join(params[name]);
+                });
+            }
+            return out;
+        },
+
+        /** Anahtar sözlükte GERÇEKTEN var mı (yedek metne düşmeden). */
+        has: function (key) {
+            var value = dicts[current];
+            var parts = String(key).split('.');
+            for (var i = 0; value && i < parts.length; i++) value = value[parts[i]];
+            return typeof value === 'string';
         },
 
         /**
@@ -115,11 +161,19 @@
                 });
             });
 
-            /* Sayfa başlığı da çevrilebilir. */
+            /* Sayfa başlığı da çevrilebilir.
+               `meta.*` anahtarları marka adını ZATEN içeriyor
+               ("Корзина — Fores"); ikinci kez eklemek "Fores — Fores"
+               yapardı. Bu yüzden yalnız eksikse eklenir. */
             var titleKey = document.body.getAttribute('data-title-i18n');
             if (titleKey) {
-                var t = I18N.t(titleKey, null);
-                if (t) document.title = t + ' — ' + App.config.BRAND.name + App.config.BRAND.suffix;
+                var text = I18N.t(titleKey, null);
+                if (text) {
+                    var brand = App.config.BRAND.name + App.config.BRAND.suffix;
+                    document.title = text.toLowerCase().indexOf(brand.toLowerCase()) !== -1
+                        ? text
+                        : text + ' — ' + brand;
+                }
             }
         }
     };
@@ -130,6 +184,6 @@
      * Kısayol — uygulamanın her yerinde bu kullanılır.
      * `App.t('cart.title', 'Sepet')`
      */
-    App.t = function (key, fallback) { return I18N.t(key, fallback); };
+    App.t = function (key, fallback, params) { return I18N.t(key, fallback, params); };
 
 })(window.App);

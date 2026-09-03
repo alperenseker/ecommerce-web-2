@@ -33,14 +33,14 @@
        ============================================================ */
 
     Order.STATUS = {
-        pending:    { key: 'order.status.pending',    tone: 'warn' },
-        confirmed:  { key: 'order.status.confirmed',  tone: 'acc'  },
-        processing: { key: 'order.status.processing', tone: 'acc'  },
-        shipped:    { key: 'order.status.shipped',    tone: 'acc'  },
-        delivered:  { key: 'order.status.delivered',  tone: 'ok'   },
-        cancelled:  { key: 'order.status.cancelled',  tone: 'err'  },
-        on_hold:    { key: 'order.status.onHold',     tone: 'warn' },
-        refunded:   { key: 'order.status.refunded',   tone: 'err'  }
+        pending:    { key: 'orderPage.statusPending',    tone: 'warn' },
+        confirmed:  { key: 'orderPage.statusConfirmed',  tone: 'acc'  },
+        processing: { key: 'orderPage.statusProcessing', tone: 'acc'  },
+        shipped:    { key: 'orderPage.statusShipped',    tone: 'acc'  },
+        delivered:  { key: 'orderPage.statusDelivered',  tone: 'ok'   },
+        cancelled:  { key: 'orderPage.statusCancelled',  tone: 'err'  },
+        on_hold:    { key: 'orderPage.statusOnHold',     tone: 'warn' },
+        refunded:   { key: 'orderPage.statusRefunded',   tone: 'err'  }
     };
 
     Order.PAYMENT_STATUS = {
@@ -52,11 +52,11 @@
     };
 
     Order.PAYMENT_METHOD = {
-        cash_on_delivery: 'order.method.cod',
-        bank_transfer:    'order.method.transfer',
-        credit_card:      'order.method.card',
-        card:             'order.method.card',        /* checkout 'card' yazar */
-        pending_approval: 'order.method.approval'
+        cash_on_delivery: 'orderPage.paymentCOD',
+        bank_transfer:    'orderPage.paymentBankTransfer',
+        credit_card:      'orderPage.paymentCreditCard',
+        card:             'orderPage.paymentCreditCard',   /* checkout 'card' yazar */
+        pending_approval: 'orderPage.paymentPendingApproval'
     };
 
     /** Siparişin ilerleyişi — ilerleme çubuğu bu sırayı kullanır. */

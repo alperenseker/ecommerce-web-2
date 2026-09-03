@@ -81,7 +81,7 @@ App.definePage('cart', async function (ctx) {
             ? '<tr class="cart-group"><td colspan="6">' +
                   '<div class="cart-group__inner">' +
                       '<span class="cart-group__name">' + App.utils.escape(group.label) + '</span>' +
-                      '<span class="cart-group__sub">' + App.t('cart.subtotal', 'Подытог') + ': ' +
+                      '<span class="cart-group__sub">' + App.t('cart.subtotal', 'Промежуточный итог') + ': ' +
                           '<strong>' + App.fmt.price(group.subtotal) + '</strong></span>' +
                   '</div>' +
               '</td></tr>'
@@ -128,7 +128,7 @@ App.definePage('cart', async function (ctx) {
                    '<td style="width:44px">' +
                        '<button class="btn btn--plain btn--sm btn--icon" type="button" ' +
                                'data-act="cart-remove" data-id="' + item.CartItemId + '" ' +
-                               'aria-label="' + App.t('cart.remove', 'Убрать') + '">' +
+                               'aria-label="' + App.t('common.remove', 'Убрать') + '">' +
                            App.icon('trash', 14) + '</button>' +
                    '</td>' +
                '</tr>';
@@ -137,23 +137,23 @@ App.definePage('cart', async function (ctx) {
     function splitNoteHtml(groupCount) {
         if (groupCount < 2) return '';
         return '<div class="alert alert--info mt-4">' + App.icon('info', 15) +
-                   '<span>' + App.t('cart.splitNote', '').replace('{count}', groupCount) + '</span>' +
+                   '<span>' + App.t('cart.splitNote', '', { count: groupCount }) + '</span>' +
                '</div>';
     }
 
     function summaryHtml() {
         return '<aside class="card summary panel-metal">' +
                    '<div class="card__head">' +
-                       '<h3 class="card__title">' + App.t('cart.summary', 'Ваш заказ') + '</h3>' +
-                       '<span class="badge">' + App.cart.count() + ' ' + App.t('cart.items', '') + '</span>' +
+                       '<h3 class="card__title">' + App.t('cart.cartTotals', 'Итого в корзине') + '</h3>' +
+                       '<span class="badge">' + App.cart.count() + ' ' + App.t('account.orders.items', '') + '</span>' +
                    '</div>' +
                    '<div class="card__body">' +
                        '<div class="summary__row">' +
-                           '<span>' + App.t('cart.subtotal', 'Подытог') + '</span>' +
+                           '<span>' + App.t('cart.subtotal', 'Промежуточный итог') + '</span>' +
                            '<b>' + App.fmt.price(App.cart.total()) + '</b>' +
                        '</div>' +
                        '<div class="summary__row">' +
-                           '<span>' + App.t('cart.shipping', 'Доставка') + '</span>' +
+                           '<span>' + App.t('checkout.shipping', 'Доставка') + '</span>' +
                            '<span class="t-xs t-dim">' + App.t('cart.shippingCalc', '') + '</span>' +
                        '</div>' +
                        '<div class="summary__total">' +
@@ -163,7 +163,7 @@ App.definePage('cart', async function (ctx) {
                    '</div>' +
                    '<div class="card__foot">' +
                        '<a class="btn btn--primary btn--lg btn--block" href="checkout.html">' +
-                           App.t('cart.checkout', 'Оформить заказ') +
+                           App.t('cart.proceedToCheckout', 'Перейти к оформлению') +
                            App.icon('arrowRight', 15) + '</a>' +
                    '</div>' +
                '</aside>';
@@ -173,8 +173,8 @@ App.definePage('cart', async function (ctx) {
         root.innerHTML =
             '<div class="card"><div class="empty">' +
                 '<div class="empty__icon">' + App.icon('cart', 28) + '</div>' +
-                '<h2 class="empty__title">' + App.t('cart.empty', 'Корзина пуста') + '</h2>' +
-                '<p class="empty__text">' + App.t('cart.emptyText', '') + '</p>' +
+                '<h2 class="empty__title">' + App.t('cart.messages.emptyCart', 'Ваша корзина пуста') + '</h2>' +
+                '<p class="empty__text">' + App.t('cart.messages.browseProducts', '') + '</p>' +
                 '<a class="btn btn--primary" href="shop.html">' +
                     App.t('cart.continueShopping', 'В каталог') + '</a>' +
             '</div></div>';
@@ -185,9 +185,9 @@ App.definePage('cart', async function (ctx) {
             '<div class="card"><div class="empty">' +
                 '<div class="empty__icon">' + App.icon('lock', 26) + '</div>' +
                 '<h2 class="empty__title">' + App.t('cart.loginToView', 'Войдите, чтобы увидеть корзину') + '</h2>' +
-                '<p class="empty__text">' + App.t('auth.loginSub', '') + '</p>' +
+                '<p class="empty__text">' + App.t('account.loginPrompt.description', '') + '</p>' +
                 '<a class="btn btn--primary" href="login.html">' +
-                    App.t('header.login', 'Войти') + '</a>' +
+                    App.t('header.signIn', 'Войти') + '</a>' +
             '</div></div>';
     }
 

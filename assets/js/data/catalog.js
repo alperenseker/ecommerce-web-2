@@ -385,9 +385,14 @@
         return (res.success && res.data) ? res.data : null;
     };
 
+    /**
+     * Varyant verisi. Uç DİZİ DEĞİL NESNE döndürür
+     * ({ Variants, DesignOptions, ColorOptions, ... }); normalleştirme
+     * ui/variants.js içindedir, burada ham veri geçilir.
+     */
     C.getVariants = async function (productId) {
         var res = await App.api.products.getVariants(productId);
-        return (res.success && res.data) ? res.data : [];
+        return (res.success && res.data) ? res.data : null;
     };
 
     /** Önbelleği tümden at (çıkış / dil değişimi sonrası). */

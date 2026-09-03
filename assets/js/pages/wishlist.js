@@ -52,10 +52,10 @@ App.definePage('wishlist', async function (ctx) {
             root.innerHTML =
                 '<div class="card"><div class="empty">' +
                     '<div class="empty__icon">' + App.icon('heart', 26) + '</div>' +
-                    '<h2 class="empty__title">' + App.t('wishlist.empty', '') + '</h2>' +
+                    '<h2 class="empty__title">' + App.t('wishlist.emptyTitle', App.t('wishlist.empty', 'В избранном пока пусто')) + '</h2>' +
                     '<p class="empty__text">' + App.t('wishlist.emptyText', '') + '</p>' +
                     '<a class="btn btn--primary" href="shop.html">' +
-                        App.t('shop.title', 'Каталог') + '</a>' +
+                        App.t('menu.shop', 'Магазин') + '</a>' +
                 '</div></div>';
             return;
         }
@@ -63,7 +63,7 @@ App.definePage('wishlist', async function (ctx) {
         actionsBox.innerHTML =
             '<button class="btn btn--steel btn--sm" type="button" data-act="wishlist-all-to-cart">' +
                 App.icon('cart', 14) +
-                '<span>' + App.t('wishlist.moveToCart', 'В корзину') + '</span>' +
+                '<span>' + App.t('shopList.card.addToCart', 'В корзину') + '</span>' +
             '</button>';
 
         root.innerHTML =
@@ -119,7 +119,7 @@ App.definePage('wishlist', async function (ctx) {
                                'data-act="add-to-cart" data-id="' + item.ProductId + '"' +
                                (stock.canOrder ? '' : ' disabled') + '>' +
                            App.icon('cart', 13) +
-                           '<span>' + App.t('product.addToCart', 'В корзину') + '</span>' +
+                           '<span>' + App.t('shopList.card.addToCart', 'В корзину') + '</span>' +
                        '</button>' +
                    '</td>' +
 
@@ -141,7 +141,7 @@ App.definePage('wishlist', async function (ctx) {
                 '<div class="empty__icon">' + App.icon('lock', 26) + '</div>' +
                 '<h2 class="empty__title">' + App.t('wishlist.loginToView', '') + '</h2>' +
                 '<a class="btn btn--primary" href="login.html">' +
-                    App.t('header.login', 'Войти') + '</a>' +
+                    App.t('header.signIn', 'Войти') + '</a>' +
             '</div></div>';
     }
 
@@ -166,7 +166,7 @@ App.definePage('wishlist', async function (ctx) {
         });
 
         if (!addable.length) {
-            App.toast.warning(App.t('stock.outOfStock', 'Нет доступных товаров'));
+            App.toast.warning(App.t('shopList.card.outOfStock', 'Нет в наличии'));
             return;
         }
 
@@ -179,6 +179,6 @@ App.definePage('wishlist', async function (ctx) {
         }
 
         btn.classList.remove('is-loading');
-        if (added) App.toast.success(added + ' × ' + App.t('cart.added', 'добавлено'));
+        if (added) App.toast.success(added + ' × ' + App.t('shopList.card.added', 'Добавлено'));
     });
 });

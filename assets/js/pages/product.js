@@ -74,7 +74,7 @@ App.definePage('product', async function (ctx) {
 
                     '<div class="pdetail__meta">' +
                         ratingHtml(p) +
-                        (p.Sku ? '<span class="t-mono t-xs t-dim">' + App.t('product.sku', 'Артикул') +
+                        (p.Sku ? '<span class="t-mono t-xs t-dim">' + App.t('productDetail.sku', 'Артикул') +
                                  ': ' + App.utils.escape(p.Sku) + '</span>' : '') +
                         '<span class="pcard__stock pcard__stock--' + stock.level + '">' +
                             '<span class="dot dot--' + toneOf(stock.level) + '"></span>' +
@@ -96,11 +96,11 @@ App.definePage('product', async function (ctx) {
                         '<div class="card__body">' +
                             '<div class="tabs" role="tablist">' +
                                 '<button class="tab is-active" type="button" data-act="tab" data-tab="desc">' +
-                                    App.t('product.description', 'Описание') + '</button>' +
+                                    App.t('productDetail.tabDescription', 'Описание') + '</button>' +
                                 '<button class="tab" type="button" data-act="tab" data-tab="specs">' +
-                                    App.t('product.specifications', 'Характеристики') + '</button>' +
+                                    App.t('productDetail.tabSpecification', 'Характеристики') + '</button>' +
                                 '<button class="tab" type="button" data-act="tab" data-tab="reviews">' +
-                                    App.t('product.reviews', 'Отзывы') +
+                                    App.t('productDetail.tabReviews', 'Отзывы покупателей') +
                                     ' <span class="t-dim">(' + (p.TotalReviewCount || 0) + ')</span></button>' +
                             '</div>' +
 
@@ -129,7 +129,7 @@ App.definePage('product', async function (ctx) {
                        '<span class="stars__fg" style="width:' + pct + '">★★★★★</span>' +
                    '</span>' +
                    '<span class="t-xs t-dim">' + (p.TotalReviewCount || 0) + ' ' +
-                       App.t('review.count', 'отзывов') + '</span>' +
+                       App.t('shopList.card.reviews', 'отзывов') + '</span>' +
                '</span>';
     }
 
@@ -169,27 +169,27 @@ App.definePage('product', async function (ctx) {
                            (stock.canOrder ? '' : ' disabled') + ' style="min-width:190px">' +
                        App.icon('cart', 16) +
                        '<span>' + (stock.canOrder
-                           ? App.t('product.addToCart', 'В корзину')
-                           : App.t('stock.outOfStock', 'Нет в наличии')) + '</span>' +
+                           ? App.t('shopList.card.addToCart', 'В корзину')
+                           : App.t('shopList.card.outOfStock', 'Нет в наличии')) + '</span>' +
                    '</button>' +
 
                    '<button class="btn btn--ghost btn--lg btn--icon' + (inWish ? ' is-active' : '') + '" ' +
                            'type="button" data-act="wishlist" data-id="' + p.ProductId + '" ' +
-                           'title="' + App.t('header.wishlist', 'Избранное') + '">' +
+                           'title="' + App.t('productDetail.addToWishlist', 'Добавить в избранное') + '">' +
                        App.icon('heart', 17) + '</button>' +
 
                    '<button class="btn btn--ghost btn--lg btn--icon' + (inCmp ? ' is-active' : '') + '" ' +
                            'type="button" data-act="compare" data-id="' + p.ProductId + '" ' +
-                           'title="' + App.t('header.compare', 'Сравнение') + '">' +
+                           'title="' + App.t('productDetail.addToCompare', 'Добавить в сравнение') + '">' +
                        App.icon('compare', 17) + '</button>' +
                '</div>';
     }
 
     function trustHtml() {
         var rows = [
-            { icon: 'truck',  b: 'home.perk1', s: 'home.perk1s' },
-            { icon: 'shield', b: 'home.perk2', s: 'home.perk2s' },
-            { icon: 'credit', b: 'home.perk3', s: 'home.perk3s' }
+            { icon: 'truck',  b: 'productDetail.freeShipping',  s: 'productDetail.freeShippingDesc' },
+            { icon: 'shield', b: 'productDetail.securePayment', s: 'productDetail.securePaymentDesc' },
+            { icon: 'refresh', b: 'productDetail.moneyBack',    s: 'productDetail.moneyBackDesc' }
         ];
         return '<div class="trust">' + rows.map(function (r) {
             return '<div class="trust__item">' + App.icon(r.icon, 16) +
@@ -201,7 +201,7 @@ App.definePage('product', async function (ctx) {
     function descriptionHtml(p) {
         var text = p.Description || p.ShortDescription || '';
         if (!text.trim()) {
-            return '<p class="t-mut">' + App.t('product.noDescription', '') + '</p>';
+            return '<p class="t-mut">' + App.t('productDetail.noDescription', '') + '</p>';
         }
         /* 1C metni düz metindir; satır sonları korunur, HTML kaçırılır. */
         return '<p class="t-mut" style="white-space:pre-line">' + App.utils.escape(text) + '</p>';
@@ -210,18 +210,18 @@ App.definePage('product', async function (ctx) {
     /** Yalnız DOLU alanlar gösterilir; boş satır tabloyu kirletir. */
     function specsHtml(p) {
         var rows = [
-            [App.t('product.sku', 'Артикул'),        p.Sku],
-            [App.t('product.barcode', 'Штрихкод'),   p.Barcode],
-            [App.t('product.company', 'Поставщик'),  App.model.erpLabel(p.ErpSource)],
+            [App.t('productDetail.sku', 'Артикул'),        p.Sku],
+            [App.t('productDetail.barcode', 'Штрих-код'),   p.Barcode],
+            [App.t('orderPage.company', 'Компания'),  App.model.erpLabel(p.ErpSource)],
             [App.t('product.size', 'Размер'),        p.Size],
-            [App.t('product.weight', 'Вес'),         num(p.Weight, 'кг')],
-            [App.t('product.weightNet', 'Нетто'),    num(p.WeightNet, 'кг')],
-            [App.t('product.weightGross', 'Брутто'), num(p.WeightGross, 'кг')],
-            [App.t('product.width', 'Ширина'),       num(p.Width, 'мм')],
-            [App.t('product.height', 'Высота'),      num(p.Height, 'мм')],
-            [App.t('product.depth', 'Глубина'),      num(p.Depth, 'мм')],
-            [App.t('product.volume', 'Объём'),       num(p.Volume, 'м³')],
-            [App.t('product.unitsPerBox', 'В упаковке'), p.UnitsPerBox],
+            [App.t('productDetail.unitWeight', 'Вес'),         num(p.Weight, 'кг')],
+            [App.t('productDetail.weightNet', 'Нетто'),    num(p.WeightNet, 'кг')],
+            [App.t('productDetail.weightGross', 'Брутто'), num(p.WeightGross, 'кг')],
+            [App.t('productDetail.width', 'Ширина'),       num(p.Width, 'мм')],
+            [App.t('productDetail.height', 'Высота'),      num(p.Height, 'мм')],
+            [App.t('productDetail.depth', 'Глубина'),      num(p.Depth, 'мм')],
+            [App.t('productDetail.volume', 'Объём'),       num(p.Volume, 'м³')],
+            [App.t('productDetail.unitsPerBox', 'В упаковке'), p.UnitsPerBox],
             [App.t('product.vat', 'НДС'),            p.VatRate ? p.VatRate + '%' : null]
         ].filter(function (r) { return r[1] !== null && r[1] !== undefined && r[1] !== '' && r[1] !== 0; });
 
@@ -242,7 +242,7 @@ App.definePage('product', async function (ctx) {
         root.innerHTML =
             '<div class="empty">' +
                 '<div class="empty__icon">' + App.icon('box', 26) + '</div>' +
-                '<h2 class="empty__title">' + App.t('product.notFound', 'Товар не найден') + '</h2>' +
+                '<h2 class="empty__title">' + App.t('productDetail.productNotFound', 'Товар не найден') + '</h2>' +
                 '<p class="empty__text">' + App.t('product.notFoundText', '') + '</p>' +
                 '<a class="btn btn--primary" href="shop.html">' +
                     App.t('shop.title', 'Каталог') + '</a>' +
@@ -287,7 +287,7 @@ App.definePage('product', async function (ctx) {
             panel.innerHTML =
                 '<div class="empty">' +
                     '<div class="empty__icon">' + App.icon('star', 24) + '</div>' +
-                    '<p class="empty__text">' + App.t('review.noneText', '') + '</p>' +
+                    '<p class="empty__text">' + App.t('productDetail.noReviewsYet', 'Пока нет отзывов.') + '</p>' +
                 '</div>';
             return;
         }
@@ -296,7 +296,7 @@ App.definePage('product', async function (ctx) {
             '<div class="rating-summary mb-6">' +
                 '<div class="t-center">' +
                     '<div class="rating-summary__score">' + dist.average.toFixed(1) + '</div>' +
-                    '<div class="t-xs t-dim">' + dist.total + ' ' + App.t('review.count', '') + '</div>' +
+                    '<div class="t-xs t-dim">' + dist.total + ' ' + App.t('shopList.card.reviews', '') + '</div>' +
                 '</div>' +
                 '<div class="grow flex-col gap-2">' +
                     [5, 4, 3, 2, 1].map(function (star) {
@@ -339,23 +339,10 @@ App.definePage('product', async function (ctx) {
         var box = document.getElementById('variants-box');
         if (!box) return;
 
-        var variants = await App.catalog.getVariants(p.ProductId).catch(function () { return []; });
-        if (!variants.length) return;
+        var data = await App.variants.load(p.ProductId);
+        if (!data) return;
 
-        box.innerHTML =
-            '<div class="mb-5">' +
-                '<div class="label">' + App.t('product.variants', 'Варианты') + '</div>' +
-                '<div class="variants">' + variants.map(function (v) {
-                    var vid = v.ProductId || v.VariantId;
-                    var label = v.Name || v.Size || v.Sku || '—';
-                    var out = (parseInt(v.StockAmount, 10) || 0) <= 0;
-
-                    return '<a class="variant' + (String(vid) === String(p.ProductId) ? ' is-active' : '') +
-                               (out ? ' is-out' : '') + '" href="product.html?id=' + vid + '">' +
-                               App.utils.escape(App.fmt.truncate(label, 30)) +
-                           '</a>';
-                }).join('') + '</div>' +
-            '</div>';
+        box.innerHTML = App.variants.html(data);
     }
 
     /* ============================================================

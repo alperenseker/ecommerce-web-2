@@ -1,11 +1,12 @@
 /* ============================================================
-   07-icons.css — SATIR İÇİ SVG İKON SİSTEMİ
-   İkonlar ui/icons.js içinde tanımlıdır ve <i class="ico"> içine
-   SVG olarak basılır. Dış bir ikon fontu / CDN bağımlılığı YOKTUR:
-   site çevrimdışıyken de ikonlar görünür.
+   07-icons.css — SATIR İÇİ SVG İKON KABI
+   ------------------------------------------------------------
+   `App.icon('cart')` şu HTML'i üretir:
+       <i class="ico"><svg viewBox="0 0 24 24"><path d="…"/></svg></i>
 
-   Kullanım:  el.innerHTML = App.icon('cart');            // 1em
-              el.innerHTML = App.icon('cart', 20);        // 20px
+   Boyut YAZI TİPİNDEN gelir (1em): ikon her zaman yanındaki
+   metinle aynı ölçüde durur. Renk `currentColor` — kapsayıcının
+   rengini devralır, ayrıca renk vermek gerekmez.
    ============================================================ */
 
 .ico {
@@ -15,28 +16,21 @@
     width: 1em;
     height: 1em;
     flex-shrink: 0;
-    line-height: 1;
     vertical-align: -.125em;
+    line-height: 1;
 }
+
 .ico svg {
     width: 100%;
     height: 100%;
-    display: block;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.7;
+    stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-/* Dolu (fill) çizim isteyen ikonlar — kalp, yıldız */
+/* Kalp ve yıldız gövdeden çizilir: ince çizgi yerine dolu leke. */
 .ico--fill svg { fill: currentColor; stroke: none; }
 
-/* Ölçü kısayolları */
-.ico--sm { font-size: 12px; }
-.ico--md { font-size: 16px; }
-.ico--lg { font-size: 20px; }
-.ico--xl { font-size: 26px; }
-
-/* Dönen ikon (yükleniyor) */
 .ico--spin svg { animation: spin .8s linear infinite; }

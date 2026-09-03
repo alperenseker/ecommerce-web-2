@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Каталог — NOVATECH</title>
-    <meta name="description" content="Полный каталог промышленной фурнитуры: механизмы, петли, замки, комплектующие.">
+    <title>Магазин — FORES</title>
+    <meta name="description" content="Полный каталог фурнитуры: механизмы, петли, замки, комплектующие.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,32 +13,32 @@
     <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
-<body data-page="shop">
+<body data-page="shop" data-title-i18n="shop.pageTitle">
 
 <div id="site-header"></div>
 
 <main class="container">
 
     <nav class="crumbs" aria-label="breadcrumb">
-        <a href="index.html" data-i18n="common.home">Главная</a>
+        <a href="index.html" data-i18n="shop.breadcrumb.home">Главная</a>
         <span class="crumbs__sep">/</span>
-        <span class="crumbs__current" id="crumb-current" data-i18n="shop.title">Каталог</span>
-    </nav>
+        <span class="crumbs__current" id="crumb-current">Магазин</span>
+        </nav>
 
     <div class="layout-aside">
 
-        <!-- ============ KENAR ÇUBUĞU ============ -->
+        <!-- ============ SÜZGEÇLER ============ -->
         <aside class="aside" id="shop-aside">
 
             <div class="flex items-c justify-b" style="padding-top:12px">
-                <h2 class="card__title" data-i18n="shop.filters">Фильтры</h2>
+                <h2 class="card__title" data-i18n="shop.sidebar.filter">Фильтр :</h2>
                 <button class="btn btn--plain btn--sm" type="button" data-act="clear-filters"
-                        data-i18n="shop.clearFilters">Сбросить</button>
+                        data-i18n="shop.sidebar.cleanAll">Очистить все</button>
             </div>
 
             <div class="acc is-open">
                 <button class="acc__head" type="button" data-act="toggle-acc">
-                    <span data-i18n="shop.categories">Категории</span>
+                    <span data-i18n="shop.sidebar.allCategories">Все категории</span>
                     <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
                 </button>
                 <div class="acc__body">
@@ -48,38 +48,38 @@
 
             <div class="acc is-open">
                 <button class="acc__head" type="button" data-act="toggle-acc">
-                    <span data-i18n="shop.price">Цена</span>
+                    <span data-i18n="shop.sidebar.price">Цена</span>
                     <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
                 </button>
                 <div class="acc__body">
-                    <div class="price-range mb-3">
+                    <div class="flex items-c gap-2 mb-3">
                         <input class="input" type="number" id="price-min" min="0"
-                               data-i18n-attr="placeholder:shop.priceMin">
+                               data-i18n-attr="placeholder:shop.sidebar.minPlaceholder">
                         <span>—</span>
                         <input class="input" type="number" id="price-max" min="0"
-                               data-i18n-attr="placeholder:shop.priceMax">
+                               data-i18n-attr="placeholder:shop.sidebar.maxPlaceholder">
                     </div>
                     <button class="btn btn--steel btn--sm btn--block" type="button" data-act="apply-price"
-                            data-i18n="shop.applyPrice">Применить</button>
+                            data-i18n="shop.sidebar.goButton">Применить</button>
                     <div class="mt-4" id="price-presets"></div>
                 </div>
             </div>
 
             <div class="acc is-open">
                 <button class="acc__head" type="button" data-act="toggle-acc">
-                    <span data-i18n="shop.stock">Наличие</span>
+                    <span data-i18n="shop.sidebar.stockStatus">Наличие</span>
                     <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
                 </button>
                 <div class="acc__body flex-col gap-3">
                     <label class="check">
                         <input type="checkbox" id="filter-in-stock">
                         <span class="check__box"></span>
-                        <span data-i18n="shop.inStockOnly">Только в наличии</span>
+                        <span data-i18n="shop.sidebar.inStock">В наличии</span>
                     </label>
                     <label class="check">
                         <input type="checkbox" id="filter-out-stock">
                         <span class="check__box"></span>
-                        <span data-i18n="shop.outOfStock">Нет в наличии</span>
+                        <span data-i18n="shop.sidebar.outOfStock">Нет в наличии</span>
                     </label>
                 </div>
             </div>
@@ -89,26 +89,24 @@
         <!-- ============ ÜRÜNLER ============ -->
         <section>
 
+            <!-- Araç çubuğu: SOLDA sıralama, SAĞDA yalnız görünüm
+                 seçici. "Показано …" sayacı sayfalamanın yanına indi. -->
             <div class="toolbar">
                 <div class="flex items-c gap-3">
-                    <button class="btn btn--ghost btn--sm filter-fab" type="button" data-act="toggle-filters">
-                        <span data-i18n="shop.filters">Фильтры</span>
-                    </button>
-                    <span class="toolbar__count" id="result-count"></span>
+                    <button class="btn btn--ghost btn--sm filter-fab" type="button" data-act="toggle-filters"
+                            data-i18n="shop.toolbar.filters">Фильтры</button>
+
+                    <select class="select" id="sort-select" aria-label="sort">
+                        <option value="default"    data-i18n="shop.toolbar.defaultSorting">По умолчанию</option>
+                        <option value="price-low"  data-i18n="shop.toolbar.sortByPriceLow">По цене: от низкой</option>
+                        <option value="price-high" data-i18n="shop.toolbar.sortByPriceHigh">По цене: от высокой</option>
+                        <option value="date"       data-i18n="shop.toolbar.sortByLatest">По новизне</option>
+                        <option value="popularity" data-i18n="shop.toolbar.sortByPopularity">По популярности</option>
+                        <option value="rating"     data-i18n="shop.toolbar.sortByRating">По рейтингу</option>
+                    </select>
                 </div>
 
                 <div class="toolbar__right">
-                    <select class="select" id="sort-select" aria-label="sort">
-                        <option value="default"    data-i18n="shop.sortDefault">По умолчанию</option>
-                        <option value="price-low"  data-i18n="shop.sortPriceLow">Цена ↑</option>
-                        <option value="price-high" data-i18n="shop.sortPriceHigh">Цена ↓</option>
-                        <option value="date"       data-i18n="shop.sortNewest">Новинки</option>
-                        <option value="popularity" data-i18n="shop.sortPopular">Популярные</option>
-                        <option value="rating"     data-i18n="shop.sortRating">По рейтингу</option>
-                    </select>
-
-                    <select class="select" id="pagesize-select" aria-label="per page"></select>
-
                     <div class="viewtoggle">
                         <button type="button" data-act="view-grid" class="is-active" aria-label="grid">
                             <i class="ico"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></i>
@@ -124,7 +122,11 @@
 
             <div class="grid grid--auto products" id="products"></div>
 
-            <div class="mt-6" id="pagination"></div>
+            <!-- Alt şerit: solda "Показано …", sağda sayfa düğmeleri. -->
+            <div class="pagebar">
+                <span class="toolbar__count" id="result-count"></span>
+                <div id="pagination"></div>
+            </div>
 
         </section>
     </div>

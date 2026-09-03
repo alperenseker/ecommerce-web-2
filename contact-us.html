@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Контакты — FORES</title>
+    <meta name="description" content="Телефон, адрес и форма обратной связи FORES.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body data-page="content" data-title-i18n="meta.contact">
+
+<div id="site-header"></div>
+
+<main class="container">
+
+    <nav class="crumbs" aria-label="breadcrumb">
+        <a href="index.html" data-i18n="contact.breadcrumbHome">Главная</a>
+        <span class="crumbs__sep">/</span>
+        <span class="crumbs__current" data-i18n="contact.breadcrumbCurrent">Связаться с нами</span>
+        </nav>
+
+    <div class="page-head">
+        <h1 data-i18n="contact.pageTitle">Связаться с нами</h1>
+    </div>
+
+    <section class="mb-6 t-center">
+        <h2 data-i18n="contact.infoTitle">Контактная информация</h2>
+        <p class="t-mut" data-i18n="contact.infoDesc"></p>
+    </section>
+
+    <section class="contact-grid mb-8">
+        <div class="contact-box">
+            <span class="contact-box__icon">
+                <i class="ico"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 7l-10 6L2 7"/></svg></i>
+            </span>
+            <h4 data-i18n="contact.emailLabel">E-mail</h4>
+            <p><a href="mailto:info@fores.kz">info@fores.kz</a></p>
+        </div>
+
+        <div class="contact-box">
+            <span class="contact-box__icon">
+                <i class="ico"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3v5ZM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v5Z"/></svg></i>
+            </span>
+            <h4 data-i18n="contact.phoneLabel">Телефон</h4>
+            <p class="mb-0"><a href="tel:+77010570316">Fores: +7 701 057 0316</a></p>
+            <p><a href="tel:+77010570302">Foral: +7 701 057 0302</a></p>
+        </div>
+
+        <div class="contact-box">
+            <span class="contact-box__icon">
+                <i class="ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0ZM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg></i>
+            </span>
+            <h4 data-i18n="contact.addressLabel">Адрес</h4>
+            <p data-i18n="contact.addressText"></p>
+        </div>
+    </section>
+
+    <div class="grid grid--2 gap-6" id="faq">
+        <section>
+            <h4 data-i18n="contact.faqTitle">Часто задаваемые вопросы</h4>
+            <div class="faq-item">
+                <button class="faq-item__head" type="button" data-act="faq-toggle">
+                    <span data-i18n="contact.faq1"></span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="faq-item__body"><p class="mb-0" data-i18n="contact.faq1Answer"></p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-item__head" type="button" data-act="faq-toggle">
+                    <span data-i18n="contact.faq2"></span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="faq-item__body"><p class="mb-0" data-i18n="contact.faq2Answer"></p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-item__head" type="button" data-act="faq-toggle">
+                    <span data-i18n="contact.faq3"></span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="faq-item__body"><p class="mb-0" data-i18n="contact.faq3Answer"></p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-item__head" type="button" data-act="faq-toggle">
+                    <span data-i18n="contact.faq4"></span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="faq-item__body"><p class="mb-0" data-i18n="contact.faq4Answer"></p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-item__head" type="button" data-act="faq-toggle">
+                    <span data-i18n="contact.faq5"></span>
+                    <i class="ico"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></i>
+                </button>
+                <div class="faq-item__body"><p class="mb-0" data-i18n="contact.faq5Answer"></p></div>
+            </div>
+        </section>
+
+        <section>
+            <h4 data-i18n="contact.formTitle">Отправьте нам сообщение</h4>
+            <form class="card" id="contact-form">
+                <div class="card__body">
+                    <div class="field">
+                        <label class="label label--req" for="cf-name" data-i18n="contact.formName">Ваше имя</label>
+                        <input class="input" id="cf-name" type="text" required>
+                    </div>
+                    <div class="field">
+                        <label class="label label--req" for="cf-email" data-i18n="contact.formEmail">Ваш Email</label>
+                        <input class="input" id="cf-email" type="email" required>
+                    </div>
+                    <div class="field">
+                        <label class="label label--req" for="cf-message" data-i18n="contact.formMessage">Ваше сообщение</label>
+                        <textarea class="textarea" id="cf-message" rows="6" required></textarea>
+                    </div>
+                    <button class="btn btn--primary btn--block" type="submit" id="cf-submit"
+                            data-i18n="contact.formSubmit">Отправить сейчас</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/loader.js"></script>
+</body>
+</html>

@@ -1,11 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <defs>
-    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FBFDFF"/><stop offset="1" stop-color="#B4C0D0"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="7" fill="#101318"/>
-  <rect x="1" y="1" width="30" height="30" rx="6.5" fill="none" stroke="#323C4B"/>
-  <path d="M16 7l8 4.5v9L16 25l-8-4.5v-9z" fill="none" stroke="url(#c)" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M8 11.5l8 4.5 8-4.5M16 16v9" fill="none" stroke="url(#c)" stroke-width="1.4" stroke-linejoin="round" opacity=".7"/>
+  <!-- Koyu çakıl-yeşil kare + amber "F": başlık şeridiyle aynı palet,
+       sekmede küçükken de ayırt edilebilsin diye tek harf. -->
+  <rect width="32" height="32" rx="6" fill="#0B2F2C"/>
+  <path d="M11 8h11v4h-7v4h6v4h-6v6h-4V8Z" fill="#FFB703"/>
 </svg>

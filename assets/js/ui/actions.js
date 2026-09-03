@@ -43,8 +43,8 @@
 
         'cart-remove': async function (btn) {
             var ok = await App.modal.confirm({
-                title: App.t('cart.remove', 'Kaldır'),
-                text:  App.t('cart.confirmRemove', 'Bu ürünü sepetten kaldırmak istediğinize emin misiniz?'),
+                title: App.t('common.remove', 'Убрать'),
+                text:  App.t('cart.messages.confirmRemove', 'Удалить этот товар из корзины?'),
                 danger: true
             });
             if (ok) await App.cart.remove(btn.dataset.id);
@@ -52,8 +52,8 @@
 
         'cart-clear': async function () {
             var ok = await App.modal.confirm({
-                title: App.t('cart.clearCart', 'Sepeti boşalt'),
-                text:  App.t('cart.confirmClear', 'Sepetteki tüm ürünler kaldırılacak. Onaylıyor musunuz?'),
+                title: App.t('cart.clearCart', 'Очистить корзину'),
+                text:  App.t('cart.messages.confirmClear', 'Удалить все товары из корзины?'),
                 danger: true
             });
             if (ok) await App.cart.clear();
@@ -80,7 +80,7 @@
         /* ---------- OTURUM ---------- */
         'logout': async function () {
             var ok = await App.modal.confirm({
-                title: App.t('header.logout', 'Çıkış yap'),
+                title: App.t('account.tabs.logout', 'Выйти'),
                 text:  App.t('account.confirmLogout', 'Çıkış yapmak istediğinize emin misiniz?')
             });
             if (ok) App.auth.logout();
@@ -133,9 +133,9 @@
         'copy': async function (btn) {
             try {
                 await navigator.clipboard.writeText(btn.dataset.value || '');
-                App.toast.success(App.t('common.copied', 'Kopyalandı'), 1500);
+                App.toast.success(App.t('checkout.bankDetails.copied', 'Скопировано!'), 1500);
             } catch (e) {
-                App.toast.error(App.t('common.error', 'Kopyalanamadı'));
+                App.toast.error(App.t('common.error', 'Ошибка'));
             }
         }
     };

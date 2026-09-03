@@ -62,22 +62,41 @@ App.config = {
     CACHE_TTL:     30 * 60 * 1000,   // sessionStorage katalog ömrü
     SYNC_INTERVAL: 5 * 60 * 1000,    // arka plan API eşitleme aralığı
 
-    /* Mağaza sayfası varsayılanları. */
-    PAGE_SIZE: 24,
-    PAGE_SIZE_OPTIONS: [12, 24, 48, 96],
+    /* Mağaza sayfasında SABİT sayfa boyutu.
+       Müşteriye "kaç ürün görünsün" sorusu sorulmuyor: seçici araç
+       çubuğunda yer kaplıyordu ve kimse değiştirmiyordu. 48, tek
+       ekranda birkaç satır + hızlı sayfalama için dengeli sayı. */
+    PAGE_SIZE: 48,
 
     /* Karşılaştırmaya en fazla kaç ürün (sunucu da sınırlar). */
     COMPARE_LIMIT: 4,
 
-    /* Mağaza kimliği — logo/başlık/footer metinleri. */
+    /* Mağaza kimliği — logo/başlık/footer metinleri.
+       Telefon/e-posta kaynak projedeki iletişim sayfasıyla birebir
+       aynıdır; iki sitede farklı numara görünmesi müşteriyi bölüyor. */
     BRAND: {
-        name:    'NOVA',
-        suffix:  'TECH',
-        tagline: 'Endüstriyel donanım ve profil sistemleri',
-        phone:   '+7 (700) 000 00 00',
-        email:   'info@novatech.kz',
-        address: 'Almatı, Kazakistan'
-    }
+        name:    'FORES',
+        suffix:  '',
+        logo:    'assets/img/logo.png',
+        tagline: 'Оконная и дверная фурнитура',
+        phone:   '+7 701 057 0316',
+        phone2:  '+7 701 057 0302',
+        email:   'info@fores.kz',
+        address: 'Boralday, Промзона 74, Илийский район, Алматинская область'
+    },
+
+    /* ---- HALYK ePay ----
+       PostLink SUNUCUYA gider (server-to-server); widget adresini
+       (test/canlı) backend `/payments/epay-token` yanıtında
+       `widgetUrl` alanıyla söyler, istemci sabit adres GÖMMEZ. */
+    EPAY: {
+        postLink: 'https://ecom.aycom.kz:5006/api/payments/epay-postlink',
+        currency: 'KZT'
+    },
+
+    /* Destek sohbeti: yeni mesaj yoklama aralığı (ms).
+       SignalR yok; basit yoklama yeterli ve her sunucuda çalışır. */
+    CHAT_POLL: 8000
 };
 
 /* ------------------------------------------------------------
@@ -127,6 +146,12 @@ App.const = {
     ADDRESS_SHIPPING: 'shipping',
 
     STOCK_OUT: 'out_of_stock',
+
+    /* Sipariş ödeme yöntemleri — sunucunun beklediği kodlar. */
+    PAY_CARD:     'card',
+    PAY_TRANSFER: 'bank_transfer',
+    PAY_COD:      'cash_on_delivery',
+    PAY_APPROVAL: 'pending_approval',
 
     /* Şirket (1C kaynağı) kodu → ekranda görünecek ad.
        Yeni bir 1C bağlandığında buraya tek satır eklenir; eşleşme

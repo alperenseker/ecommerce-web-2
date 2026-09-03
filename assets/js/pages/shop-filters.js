@@ -18,7 +18,11 @@
        karşı taraf aynı listeyi görür, geri tuşu da çalışır.
        ============================================================ */
     F.state = {
-        category: null,
+        /* ÇOKLU SEÇİM: kullanıcı birkaç kategoriyi aynı anda işaretler
+           ve sonuç bunların BİRLEŞİMİ olur (VEYA mantığı). Ürünün
+           hepsine birden ait olması gerekmez — "a veya b" listesi
+           istendiği için kesişim yanlış olurdu. */
+        categories: [],
         search:   '',
         minPrice: null,
         maxPrice: null,
@@ -32,30 +36,38 @@
     F.readUrl = function () {
         var p = App.utils.params();
 
-        F.state.category = p.category || null;
+        /* Adres çubuğunda virgülle ayrılır: shop.html?category=12,40 */
+        F.state.categories = (p.category || '')
+            .split(',')
+            .map(function (id) { return String(id).trim(); })
+            .filter(Boolean);
         F.state.search   = p.search || '';
         F.state.minPrice = p.min ? parseFloat(p.min) : null;
         F.state.maxPrice = p.max ? parseFloat(p.max) : null;
         F.state.stock    = p.stock || null;
         F.state.sort     = p.sort || 'default';
         F.state.page     = parseInt(p.page, 10) || 1;
-        F.state.pageSize = parseInt(p.size, 10) || App.config.PAGE_SIZE;
-        F.state.view     = p.view === 'list' ? 'list' : 'grid';
+        /* Sayfa boyutu SABİT — kullanıcıya sorulmuyor. */
+        F.state.pageSize = App.config.PAGE_SIZE;
+        /* Görünüm: adres çubuğu > sayfanın kendi varsayılanı.
+           shop-list.html gövdesinde `data-view="list"` taşır, böylece
+           iki ayrı sayfa aynı betiği paylaşır. */
+        var pageDefault = document.body.getAttribute('data-view') || 'grid';
+        F.state.view     = (p.view || pageDefault) === 'list' ? 'list' : 'grid';
 
         return F.state;
     };
 
     F.writeUrl = function (replace) {
         App.utils.setParams({
-            category: F.state.category,
+            category: F.state.categories.length ? F.state.categories.join(',') : null,
             search:   F.state.search,
             min:      F.state.minPrice,
             max:      F.state.maxPrice,
             stock:    F.state.stock,
             sort:     F.state.sort === 'default' ? null : F.state.sort,
             page:     F.state.page > 1 ? F.state.page : null,
-            size:     F.state.pageSize !== App.config.PAGE_SIZE ? F.state.pageSize : null,
-            view:     F.state.view === 'list' ? 'list' : null
+            view:     F.state.view === (document.body.getAttribute('data-view') || 'grid') ? null : F.state.view
         }, replace);
     };
 
@@ -75,12 +87,16 @@
         /* --- arama --- */
         if (s.search) list = App.catalog.search(s.search, list);
 
-        /* --- kategori (alt dallar dâhil) --- */
-        if (s.category) {
-            var ids = App.catalog.descendantIds(s.category);
-            list = list.filter(function (p) {
-                return ids.indexOf(String(p.CategoryId)) !== -1;
+        /* --- kategori (çoklu seçim, alt dallar dâhil) ---
+           Seçilen her kategorinin alt ağacı toplanır; ürün bu
+           kümedeki HERHANGİ bir kategoriye aitse listede kalır. */
+        if (s.categories.length) {
+            var allowed = {};
+            s.categories.forEach(function (id) {
+                App.catalog.descendantIds(id).forEach(function (child) { allowed[child] = true; });
             });
+
+            list = list.filter(function (p) { return allowed[String(p.CategoryId)] === true; });
         }
 
         /* --- fiyat ---
@@ -165,9 +181,10 @@
         if (!container) return;
 
         var html = '<div class="tree__item">' +
-                       '<a class="tree__link' + (F.state.category ? '' : ' is-active') + '" ' +
+                       '<a class="tree__link' + (F.state.categories.length ? '' : ' is-active') + '" ' +
                           'href="#" data-act="pick-category" data-id="">' +
-                           '<span>' + App.t('common.all', 'Все') + '</span>' +
+                           '<span class="tree__box"></span>' +
+                           '<span class="grow">' + App.t('common.all', 'Все') + '</span>' +
                            '<small>' + App.catalog.products.length + '</small>' +
                        '</a>' +
                    '</div>';
@@ -188,7 +205,7 @@
             /* Ürünü olmayan boş dalları göstermek listeyi şişiriyor. */
             if (!count && !subs.length) return '';
 
-            var active = String(F.state.category) === String(cat.Id);
+            var active = F.has(cat.Id);
 
             return '<div class="tree__item" data-cat-id="' + cat.Id + '">' +
                        (subs.length
@@ -196,8 +213,10 @@
                                  App.icon('chevronRight', 10) + '</button>'
                            : '<span class="tree__toggle"></span>') +
                        '<a class="tree__link' + (active ? ' is-active' : '') + '" href="#" ' +
-                          'data-act="pick-category" data-id="' + cat.Id + '">' +
-                           '<span class="t-clamp-1">' + App.utils.escape(cat.Name) + '</span>' +
+                          'data-act="pick-category" data-id="' + cat.Id + '" ' +
+                          'aria-pressed="' + active + '">' +
+                           '<span class="tree__box"></span>' +
+                           '<span class="grow t-clamp-1">' + App.utils.escape(cat.Name) + '</span>' +
                            (count ? '<small>' + count + '</small>' : '') +
                        '</a>' +
                    '</div>' +
@@ -207,18 +226,18 @@
         }).join('');
     }
 
+    /** Seçili TÜM kategorilerin ataları açılır; kullanıcı hepsini görsün. */
     function openActiveBranch(container) {
-        var active = container.querySelector('.tree__link.is-active');
-        if (!active) return;
-
-        var node = active.closest('.tree__children');
-        while (node) {
-            node.classList.add('is-open');
-            var prev = node.previousElementSibling;
-            var toggle = prev && prev.querySelector('.tree__toggle');
-            if (toggle) toggle.classList.add('is-open');
-            node = node.parentElement ? node.parentElement.closest('.tree__children') : null;
-        }
+        App.utils.$$('.tree__link.is-active', container).forEach(function (active) {
+            var node = active.closest('.tree__children');
+            while (node) {
+                node.classList.add('is-open');
+                var prev = node.previousElementSibling;
+                var toggle = prev && prev.querySelector('.tree__toggle');
+                if (toggle) toggle.classList.add('is-open');
+                node = node.parentElement ? node.parentElement.closest('.tree__children') : null;
+            }
+        });
     }
 
     /* ============================================================
@@ -270,10 +289,12 @@
         if (s.search) {
             chips.push(chip('search', App.t('shop.searchFor', 'Поиск') + ': ' + s.search));
         }
-        if (s.category) {
-            var cat = App.catalog.findCategory(s.category);
-            if (cat) chips.push(chip('category', cat.Name));
-        }
+        /* Her kategori KENDİ çipini alır: kullanıcı birini tek tek
+           çıkarabilsin, hepsini birden atmak zorunda kalmasın. */
+        s.categories.forEach(function (id) {
+            var cat = App.catalog.findCategory(id);
+            if (cat) chips.push(chip('category:' + id, cat.Name));
+        });
         if (s.minPrice !== null || s.maxPrice !== null) {
             chips.push(chip('price',
                 (s.minPrice !== null ? App.fmt.price(s.minPrice) : '0') + ' — ' +
@@ -299,8 +320,28 @@
                '</span>';
     }
 
+    /** Kategori seçili mi. */
+    F.has = function (categoryId) {
+        return F.state.categories.indexOf(String(categoryId)) !== -1;
+    };
+
+    /** Seçimi aç/kapa; boş kimlik TÜM seçimi temizler. */
+    F.toggleCategory = function (categoryId) {
+        var id = String(categoryId || '');
+        if (!id) { F.state.categories = []; return; }
+
+        var at = F.state.categories.indexOf(id);
+        if (at === -1) F.state.categories.push(id);
+        else F.state.categories.splice(at, 1);
+    };
+
+    F.dropCategory = function (categoryId) {
+        var at = F.state.categories.indexOf(String(categoryId));
+        if (at !== -1) F.state.categories.splice(at, 1);
+    };
+
     F.reset = function () {
-        F.state.category = null;
+        F.state.categories = [];
         F.state.search   = '';
         F.state.minPrice = null;
         F.state.maxPrice = null;

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Запрос на удаление аккаунта — FORES</title>
+    <meta name="description" content="Запрос на удаление аккаунта">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body data-page="content" data-title-i18n="meta.deleteAccount">
+
+<div id="site-header"></div>
+
+<main class="container">
+
+    <nav class="crumbs" aria-label="breadcrumb">
+        <a href="index.html" data-i18n="common.home">Главная</a>
+        <span class="crumbs__sep">/</span>
+        <span class="crumbs__current" data-i18n="deleteAccount.breadcrumb.deleteAccount">Удаление аккаунта</span>
+        </nav>
+
+    <div class="page-head">
+        <h1 data-i18n="deleteAccount.pageTitle">Запрос на удаление аккаунта</h1>
+        
+    </div>
+
+<div class="doc">
+    <h2 data-i18n="deleteAccount.intro.title"></h2>
+    <p class="doc__lead" data-i18n="deleteAccount.intro.description"></p>
+
+    <h2 data-i18n="deleteAccount.s1.title"></h2>
+    <p data-i18n="deleteAccount.s1.p1"></p>
+    <ol>
+        <li data-i18n="deleteAccount.s1.step1"></li>
+        <li data-i18n="deleteAccount.s1.step2"></li>
+    </ol>
+    <p data-i18n="deleteAccount.s1.processing"></p>
+
+    <h2 data-i18n="deleteAccount.s2.title"></h2>
+    <p data-i18n="deleteAccount.s2.p1"></p>
+    <ul>
+        <li data-i18n="deleteAccount.s2.li1"></li>
+        <li data-i18n="deleteAccount.s2.li2"></li>
+        <li data-i18n="deleteAccount.s2.li3"></li>
+    </ul>
+
+    <h2 data-i18n="deleteAccount.s3.title"></h2>
+    <p data-i18n="deleteAccount.s3.p1"></p>
+    <ul>
+        <li data-i18n="deleteAccount.s3.li1"></li>
+    </ul>
+
+    <h2 data-i18n="deleteAccount.s4.title"></h2>
+    <p data-i18n="deleteAccount.s4.p1"></p>
+    <p data-i18n="deleteAccount.s4.address"></p>
+    <p data-i18n="deleteAccount.s4.hours"></p>
+
+    <form id="delete-account-form" class="card mt-6">
+        <div class="card__body">
+            <div class="field">
+                <label class="label label--req" for="da-email" data-i18n="login.email">E-mail</label>
+                <input class="input" id="da-email" type="email" required>
+            </div>
+            <div class="field">
+                <label class="label" for="da-reason" data-i18n="contact.formMessage">Ваше сообщение</label>
+                <textarea class="textarea" id="da-reason"></textarea>
+            </div>
+            <button class="btn btn--danger" type="submit" id="da-submit"
+                    data-i18n="contact.formSubmit">Отправить</button>
+        </div>
+    </form>
+</div>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/loader.js"></script>
+</body>
+</html>

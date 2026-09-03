@@ -42,12 +42,19 @@
         'core/http.js',
         'core/api.js',
 
-        /* 3. dil — sözlükler i18n.js'ten SONRA gelmeli */
+        /* 3. dil — sözlükler i18n.js'ten SONRA gelmeli.
+           Önce TEMEL sözlük, sonra kaynak projeden birebir alınan
+           `*.data.js`: çakışan anahtarda kaynak projedeki metin
+           geçerli olsun diye sıra bu şekildedir. */
         'i18n/i18n.js',
         'i18n/tr.js',
         'i18n/en.js',
         'i18n/ru.js',
         'i18n/kz.js',
+        'i18n/tr.data.js',
+        'i18n/en.data.js',
+        'i18n/ru.data.js',
+        'i18n/kz.data.js',
 
         /* 4. arayüz temelleri (servisler bildirim/pencere kullanır) */
         'ui/icons.js',
@@ -67,12 +74,19 @@
         'services/address.service.js',
         'services/order.service.js',
         'services/review.service.js',
+        'services/payment.service.js',
+        'services/chat.service.js',
 
         /* 7. arayüz bileşenleri */
         'ui/product-card.js',
+        'ui/variants.js',
         'ui/actions.js',
+        /* quick-view eylem kaydı yapıyor: actions.js'ten SONRA gelmeli */
+        'ui/quick-view.js',
         'ui/drawer.js',
-        'ui/layout.js'
+        'ui/bank-details.js',
+        'ui/layout.js',
+        'ui/support-widget.js'
     ];
 
     /* ---------- SAYFA BETİKLERİ ----------
@@ -89,7 +103,7 @@
         checkout: ['pages/checkout-address.js', 'pages/checkout.js'],
         order:    'pages/order.js',
         login:    ['pages/login-register.js', 'pages/login.js'],
-        account:  ['pages/account-orders.js', 'pages/account.js'],
+        account:  ['pages/checkout-address.js', 'pages/account-orders.js', 'pages/account.js'],
         content:  'pages/content.js'
     };
 
