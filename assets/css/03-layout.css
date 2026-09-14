@@ -177,6 +177,14 @@
 }
 .search__input::placeholder { color: var(--txt-3); }
 
+/* Odak halkasını dıştaki kutu (.search__field:focus-within) çiziyor.
+   İçteki alanların kendi halkası kalırsa kutunun içinde ikinci bir
+   çerçeve oluşup kategori seçicinin üstüne biniyor. */
+.search__scope:focus-visible,
+.search__input:focus-visible {
+    outline: none;
+}
+
 .search__btn {
     flex: 0 0 auto;
     width: 52px;

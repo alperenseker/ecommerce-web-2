@@ -56,11 +56,6 @@
                 '<div class="sw-body" id="sw-body"></div>' +
 
                 '<div class="sw-foot hidden" id="sw-foot">' +
-                    '<label class="btn btn--ghost btn--icon" style="--btn-h:34px" ' +
-                           'title="' + t('shopList.support.msgSection', '') + '">' +
-                        App.icon('clip', 15) +
-                        '<input type="file" accept="image/*" hidden id="sw-file">' +
-                    '</label>' +
                     '<input class="input grow" id="sw-input" type="text" ' +
                            'placeholder="' + t('shopList.support.chatInputPlaceholder', 'Введите сообщение...') + '">' +
                     '<button class="btn btn--primary btn--icon" style="--btn-h:34px" type="button" data-act="sw-send" ' +
@@ -93,7 +88,6 @@
 
                 item('sw-chat', 'headset', 'shopList.support.live', 'shopList.support.liveDesc') +
                 itemLink('my-account.html?tab=orders', 'box', 'shopList.support.order', 'shopList.support.orderDesc') +
-                itemLink('returns.html', 'refresh', 'shopList.support.returns', 'shopList.support.returnsDesc') +
                 itemLink('contact-us.html#faq', 'info', 'shopList.support.faq', 'shopList.support.faqDesc') +
 
                 '<div class="t-xs t-dim t-center mt-3">' + t('shopList.support.footer', '') + '</div>' +
@@ -181,21 +175,10 @@
 
     function bindInput() {
         var input = document.getElementById('sw-input');
-        var file  = document.getElementById('sw-file');
 
         if (input) {
             input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') { e.preventDefault(); send(); }
-            });
-        }
-
-        if (file) {
-            file.addEventListener('change', async function () {
-                if (!file.files || !file.files[0]) return;
-                var ok = await App.chat.upload(file.files[0]);
-                file.value = '';
-                if (ok) { await App.chat.load(); paint(); }
-                else App.toast.error(App.t('jslanguage.uploadFailed', 'Yükleme başarısız'));
             });
         }
     }
@@ -249,8 +232,9 @@
         });
     };
 
-    /* Sayfa hazır olduğunda düğme basılır (her sayfada var). */
-    App.utils.ready(function () {
+    /* Düğme her sayfada var. app.js dil sözlüğünü uyguladıktan SONRA
+       çağırır — önce çizilirse metinler yedek (Rusça) metne düşer. */
+    Widget.mount = function () {
         build();
         App.bus.on(App.bus.EVENTS.LANG_CHANGED, function () {
             if (!root) return;
@@ -262,7 +246,7 @@
                 renderMenu();
             }
         });
-    });
+    };
 
     App.support = Widget;
 

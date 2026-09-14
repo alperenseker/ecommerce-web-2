@@ -329,7 +329,9 @@
                         '<li><a href="cart.html">' + t('footer.viewCart', 'Корзина') + '</a></li>' +
                         '<li><a href="wishlist.html">' + t('footer.myWishlist', 'Избранное') + '</a></li>' +
                         '<li><a href="compare.html">' + t('footer.compareProducts', 'Сравнить товары') + '</a></li>' +
-                        '<li><a href="login.html">' + t('header.signIn', 'Войти') + '</a></li>' +
+                        /* Girişli kullanıcıya "giriş yap" gösterilmez. */
+                        (App.auth.isLoggedIn() ? '' :
+                            '<li><a href="login.html">' + t('header.signIn', 'Войти') + '</a></li>') +
                     '</ul>' +
                 '</div>' +
 
@@ -875,7 +877,10 @@
     App.bus.on(App.bus.EVENTS.CART_CHANGED,     Layout.refreshBadges);
     App.bus.on(App.bus.EVENTS.WISHLIST_CHANGED, Layout.refreshBadges);
     App.bus.on(App.bus.EVENTS.COMPARE_CHANGED,  Layout.refreshBadges);
-    App.bus.on(App.bus.EVENTS.AUTH_CHANGED, repaintHeader);
+    App.bus.on(App.bus.EVENTS.AUTH_CHANGED, function () {
+        repaintHeader();
+        if (footerSlot) footerSlot.innerHTML = footerHtml();
+    });
 
     /* Dil değişince başlık/alt bilgi yeniden çizilir. */
     App.bus.on(App.bus.EVENTS.LANG_CHANGED, function () {

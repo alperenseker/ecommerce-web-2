@@ -15,7 +15,7 @@ App.definePage('login', async function () {
 
     /* Girişli kullanıcının giriş sayfasında işi yok. */
     if (App.auth.isLoggedIn()) {
-        window.location.replace(App.utils.param('redirect') || 'my-account.html');
+        window.location.replace(App.utils.param('redirect') || 'index.html');
         return;
     }
 
@@ -74,7 +74,7 @@ App.definePage('login', async function () {
                 show(box, App.t('login.loginSuccess', 'Вход выполнен успешно!'), 'success');
 
                 /* Sepetten/ödemeden gelindiyse oraya dön. */
-                var back = App.utils.param('redirect') || 'my-account.html';
+                var back = App.utils.param('redirect') || 'index.html';
                 setTimeout(function () { window.location.href = back; }, 600);
 
             } catch (err) {

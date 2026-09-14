@@ -47,6 +47,7 @@
 
         /* --- 2. iskelet --- */
         App.layout.mount();
+        App.support.mount();
 
         /* --- 3. sayfa başlatıcısı ---
            Katalog beklenmeden çağrılır: sayfa kendi iskeletini
