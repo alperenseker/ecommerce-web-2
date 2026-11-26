@@ -18,9 +18,11 @@ App.definePage('product', async function (ctx) {
     void data;
 
     var product = slug ? App.catalog.findBySlug(slug) : App.catalog.findById(id);
+    var fromCache = !!product;
 
     /* Önbellekte yoksa doğrudan sunucuya sor (yeni ürün, paylaşılan
-       bağlantı, farklı dilde slug vb.). */
+       bağlantı, farklı dilde slug vb.). Bu müşteriden gizlenen ürün
+       (FAZ 42) de 404 döner → "bulunamadı". */
     if (!product) {
         try {
             var res = await App.api.products.getById(id || slug);
@@ -40,12 +42,55 @@ App.definePage('product', async function (ctx) {
     loadReviews(product);
     loadVariants(product);
 
+    if (fromCache) verifyWithServer(product);
+
     App.bus.on(App.bus.EVENTS.LANG_CHANGED, function () {
+        if (!product) { renderNotFound(); return; }
         render(product);
         App.gallery.bind();
         bindActions(product);
         loadRelated(product);
+        loadReviews(product);
+        loadVariants(product);
     });
+
+    /**
+     * Ekran önbellekteki kayıtla ANINDA çizildi; kayıt bayat olabilir
+     * (FAZ 44: ürün bu müşteriden sonradan gizlendi, kural / fiyat /
+     * satış birimi değişti). Sunucunun güncel kaydı arkadan sorulur:
+     *   • 404 → ürün artık görünmüyor: "bulunamadı" ekranı, önbellekten
+     *     düşer (kartlar bir daha "sepete ekle" sunmasın),
+     *   • alanlar değiştiyse sayfa güncel kayıtla yeniden çizilir.
+     */
+    async function verifyWithServer(p) {
+        var fresh;
+        try {
+            var r = await App.api.products.getById(p.ProductId);
+            fresh = r && r.success ? r.data : null;
+        } catch (e) {
+            if (App.rules.productUnavailableMessage(e, true)) {
+                App.catalog.forget(p.ProductId);
+                product = null;
+                renderNotFound();
+            }
+            return;
+        }
+        if (!fresh) return;
+
+        var keys = ['Price', 'OldPrice', 'StockAmount', 'StockStatus', 'HasPrice', 'PriceHidden',
+                    'SalesUnitName', 'SalesUnitSize', 'BaseUnit', 'MinOrderQty', 'OrderStep',
+                    'UnitsPerPallet', 'BasePrice', 'HasSpecialPrice', 'Description', 'Name'];
+        var changed = keys.some(function (k) { return fresh[k] !== p[k]; });
+
+        product = Object.assign({}, p, fresh);
+        if (!changed) return;
+
+        render(product);
+        App.gallery.bind();
+        bindActions(product);
+        loadReviews(product);
+        loadVariants(product);
+    }
 
     /* ============================================================
        ÇİZİM
@@ -79,8 +124,7 @@ App.definePage('product', async function (ctx) {
                         '<span class="pcard__stock pcard__stock--' + stock.level + '">' +
                             '<span class="dot dot--' + toneOf(stock.level) + '"></span>' +
                             App.utils.escape(stock.label) +
-                            (stock.inStock ? ' · ' + App.fmt.number(stock.amount, 0) + ' ' +
-                                             App.t('stock.pieces', 'шт') : '') +
+                            (stock.inStock ? ' · ' + stockAmountText(p, stock) : '') +
                         '</span>' +
                     '</div>' +
 
@@ -121,6 +165,14 @@ App.definePage('product', async function (ctx) {
         return level === 'in' ? 'ok' : level === 'pre' ? 'warn' : 'err';
     }
 
+    /** "12 шт" ya da FAZ 38 satış birimli üründe "48 × Комплект 33 кг (1 584 кг)". */
+    function stockAmountText(p, stock) {
+        var suText = App.su.stockText(p);
+        return suText
+            ? App.utils.escape(suText)
+            : App.fmt.number(stock.amount, 0) + ' ' + App.t('stock.pieces', 'шт');
+    }
+
     function ratingHtml(p) {
         var pct = App.fmt.ratingPercent(p.AverageRating);
         return '<span class="flex items-c gap-2">' +
@@ -141,25 +193,36 @@ App.definePage('product', async function (ctx) {
         }
 
         var discount = App.model.discountPercent(p);
+        /* FAZ 38 — satış birimli üründe fiyat AMBALAJ başına: "/ ad" ve
+           altında taban birim fiyatı. FAZ 44 — özel fiyatta rozet. */
+        var info = App.su.info(p);
 
         return '<span class="pdetail__price">' + App.fmt.price(p.Price) + '</span>' +
+               (info ? '<span class="su-unit">/ ' + App.utils.escape(info.name) + '</span>' : '') +
                (discount > 0
                    ? '<span class="pdetail__old">' + App.fmt.price(p.OldPrice) + '</span>' +
                      '<span class="badge badge--gold">-' + discount + '%</span>'
                    : '') +
                (p.VatRate ? '<span class="t-xs t-dim">' + App.t('product.vat', 'НДС') +
-                            ' ' + App.utils.escape(p.VatRate) + '%</span>' : '');
+                            ' ' + App.utils.escape(p.VatRate) + '%</span>' : '') +
+               (info && info.basePriceText ? '<span class="su-base">' + App.utils.escape(info.basePriceText) + '</span>' : '') +
+               App.rules.badgeHtml(p);
     }
 
     function buyRowHtml(p, stock) {
         var inWish = App.wishlist.has(p.ProductId);
         var inCmp  = App.compare.has(p.ProductId);
 
+        /* FAZ 38 — adet kutusu min/adım kurallı, başlangıç minimum;
+           ± adım kadar (ui/actions.js). Kuralsız üründe bugünkü gibi. */
+        var rules = App.su.qtyRules(p);
+        var rulesLine = App.su.rulesLine(p);
+
         return '<div class="flex wrap gap-3 items-c">' +
                    '<div class="qty">' +
                        '<button class="qty__btn" type="button" data-act="qty-dec" data-target="pd-qty">' +
                            App.icon('minus', 14) + '</button>' +
-                       '<input class="qty__input" id="pd-qty" type="number" value="1" min="1" max="100000">' +
+                       '<input class="qty__input" id="pd-qty" type="number" max="100000"' + App.su.inputAttrs(rules) + '>' +
                        '<button class="qty__btn" type="button" data-act="qty-inc" data-target="pd-qty">' +
                            App.icon('plus', 14) + '</button>' +
                    '</div>' +
@@ -170,7 +233,7 @@ App.definePage('product', async function (ctx) {
                        App.icon('cart', 16) +
                        '<span>' + (stock.canOrder
                            ? App.t('shopList.card.addToCart', 'В корзину')
-                           : App.t('shopList.card.outOfStock', 'Нет в наличии')) + '</span>' +
+                           : App.model.cannotAddText(stock)) + '</span>' +
                    '</button>' +
 
                    '<button class="btn btn--ghost btn--lg btn--icon' + (inWish ? ' is-active' : '') + '" ' +
@@ -182,7 +245,8 @@ App.definePage('product', async function (ctx) {
                            'type="button" data-act="compare" data-id="' + p.ProductId + '" ' +
                            'title="' + App.t('productDetail.addToCompare', 'Добавить в сравнение') + '">' +
                        App.icon('compare', 17) + '</button>' +
-               '</div>';
+               '</div>' +
+               (rulesLine ? '<div class="su-rules mt-2">' + App.utils.escape(rulesLine) + '</div>' : '');
     }
 
     function trustHtml() {
@@ -212,7 +276,11 @@ App.definePage('product', async function (ctx) {
         var rows = [
             [App.t('productDetail.sku', 'Артикул'),        p.Sku],
             [App.t('productDetail.barcode', 'Штрих-код'),   p.Barcode],
-            [App.t('orderPage.company', 'Компания'),  App.model.erpLabel(p.ErpSource)],
+            [App.t('orderPage.company', 'Компания'),  App.model.erpLabel(p.ErpSource)]
+        ].concat(
+            /* FAZ 38 — satış birimi, birim fiyatı, minimum, adım, palet. */
+            App.su.specRows(p)
+        ).concat([
             [App.t('product.size', 'Размер'),        p.Size],
             [App.t('productDetail.unitWeight', 'Вес'),         num(p.Weight, 'кг')],
             [App.t('productDetail.weightNet', 'Нетто'),    num(p.WeightNet, 'кг')],
@@ -223,7 +291,7 @@ App.definePage('product', async function (ctx) {
             [App.t('productDetail.volume', 'Объём'),       num(p.Volume, 'м³')],
             [App.t('productDetail.unitsPerBox', 'В упаковке'), p.UnitsPerBox],
             [App.t('product.vat', 'НДС'),            p.VatRate ? p.VatRate + '%' : null]
-        ].filter(function (r) { return r[1] !== null && r[1] !== undefined && r[1] !== '' && r[1] !== 0; });
+        ]).filter(function (r) { return r[1] !== null && r[1] !== undefined && r[1] !== '' && r[1] !== 0; });
 
         if (!rows.length) return '<p class="t-mut">—</p>';
 
@@ -342,7 +410,7 @@ App.definePage('product', async function (ctx) {
         var data = await App.variants.load(p.ProductId);
         if (!data) return;
 
-        box.innerHTML = App.variants.html(data);
+        box.innerHTML = App.variants.html(data, p);
     }
 
     /* ============================================================

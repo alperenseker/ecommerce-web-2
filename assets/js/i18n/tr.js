@@ -281,5 +281,22 @@ App.i18n.register('tr', {
         title: 'Sayfa bulunamadı',
         text: 'Aradığınız sayfa taşınmış ya da silinmiş olabilir.',
         cta: 'Ana sayfaya dön'
+    },
+
+    /* FAZ 44 — sepette kalmış ama artık görünmeyen kalemler (kaynak
+       projede sessizce silinir; burada gösterilir, kullanıcı siler). */
+    customerRules: {
+        unavailableInCartNote: 'Bu ürün artık mevcut değil. Lütfen sepetinizden çıkarın.',
+        unavailableCheckout: 'Bu ürünler artık mevcut değil: {names}. Sipariş verebilmek için sepetinizden çıkarın.'
+    },
+
+    /* Henüz belli olmayan değerlerin görünür yer tutucuları (K2.17, DURUM.md §4). */
+    site: {
+        pending: {
+            phone: '[telefon netleştirilecek]',
+            email: '[e-posta netleştirilecek]',
+            site: '[site adresi netleştirilecek]'
+        },
+        contactPending: 'Destek e-posta adresi henüz yayımlanmadı. Lütfen giriş yapıp destek sohbetinden bize yazın.'
     }
 });

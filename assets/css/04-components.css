@@ -287,6 +287,9 @@
 .badge--warn    { background: var(--warn-soft); color: var(--warn); }
 .badge--err     { background: var(--danger-soft); color: var(--danger); }
 .badge--acc     { background: var(--accent-soft); color: var(--accent-dark); }
+/* FAZ 44 — "Индивидуальная цена": bilgi mavisi (yeşil stok, turuncu
+   stoksuz sipariş, kırmızı indirim ile karışmasın). */
+.badge--special { background: var(--info-soft); color: var(--info); font-size: var(--fs-xs); padding: 1px var(--sp-2); }
 .badge--out     { background: var(--bg-3); color: var(--txt-2); }
 
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--txt-3); flex-shrink: 0; }

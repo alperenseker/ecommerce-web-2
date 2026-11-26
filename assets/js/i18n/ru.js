@@ -279,5 +279,22 @@ App.i18n.register('ru', {
         title: 'Страница не найдена',
         text: 'Возможно, страница была перемещена или удалена.',
         cta: 'На главную'
+    },
+
+    /* FAZ 44 — sepette kalmış ama artık görünmeyen kalemler (kaynak
+       projede sessizce silinir; burada gösterilir, kullanıcı siler). */
+    customerRules: {
+        unavailableInCartNote: 'Этот товар больше недоступен. Удалите его из корзины.',
+        unavailableCheckout: 'Эти товары больше недоступны: {names}. Удалите их из корзины, чтобы оформить заказ.'
+    },
+
+    /* Henüz belli olmayan değerlerin görünür yer tutucuları (K2.17, DURUM.md §4). */
+    site: {
+        pending: {
+            phone: '[телефон уточняется]',
+            email: '[e-mail уточняется]',
+            site: '[адрес сайта уточняется]'
+        },
+        contactPending: 'Адрес электронной почты поддержки ещё не опубликован. Войдите в аккаунт и напишите нам в чат поддержки.'
     }
 });

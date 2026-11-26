@@ -70,9 +70,14 @@
 
         /* Girişten önce depolama temizlenir: önceki kullanıcının
            fiyatları/sepeti/kalpleri yeni kullanıcıya sızmasın.
-           Dil tercihi korunur (clearUserData beyaz listesi). */
+           Dil tercihi korunur (clearUserData beyaz listesi).
+           FAZ 35: fiyatlı ve kurallı katalog önbelleği (IndexedDB)
+           da gider — misafirken / önceki hesapla indirilen liste yeni
+           müşterinin fiyatı ve görünürlüğüyle değil. Beklenir: sonraki
+           sayfa önbellekten değil sunucudan (yeni token'la) okusun. */
         var company = readCompanyFields();
         App.store.clearUserData();
+        await App.catalog.clearCache();
         writeCompanyFields(company);
 
         if (token) App.store.set(App.keys.TOKEN, token);
@@ -112,7 +117,7 @@
     async function loadUserSettings(userId) {
         var fallback = function () {
             App.store.set(App.keys.CAN_BYPASS_PAYMENT, 'false');
-            App.store.set(App.keys.CAN_ORDER_NO_STOCK, 'false');
+            App.perm.clear();
             App.store.set(App.keys.PRICE_CATEGORY, 'A');
         };
 
@@ -120,7 +125,9 @@
             var res = await App.api.user.getSettings(userId);
             if (res.success && res.data) {
                 App.store.set(App.keys.CAN_BYPASS_PAYMENT, String(res.data.CanBypassPayment || false));
-                App.store.set(App.keys.CAN_ORDER_NO_STOCK, String(res.data.CanOrderWithoutStock || false));
+                /* Stoksuz sipariş yetkisi ŞİRKET BAŞINA (CompanySettings);
+                   birleşik bayrak yalnız eski API için yedek. */
+                App.perm.save(res.data);
                 App.store.set(App.keys.PRICE_CATEGORY, res.data.PriceCategory || 'A');
             } else {
                 fallback();
@@ -162,13 +169,39 @@
        ÇIKIŞ
        ============================================================ */
 
-    Auth.logout = function (redirect) {
+    /**
+     * FAZ 35 — fiyatlı/kurallı katalog önbelleği (IndexedDB) yönlenmeden
+     * ÖNCE temizlenir ve beklenir; yarıda kalan IndexedDB işlemi sonraki
+     * ziyaretçiye önceki müşterinin fiyatlarını bırakırdı.
+     */
+    Auth.logout = async function (redirect) {
         App.store.clearUserData();
         App.bus.emit(App.bus.EVENTS.AUTH_CHANGED, { user: null, loggedIn: false });
+        await App.catalog.clearCache();
 
         if (redirect !== false) {
             window.location.href = 'index.html';
         }
+    };
+
+    /**
+     * Bayat oturum (token'lı istek 401 döndü — bkz. core/http.js).
+     * Çıkışın temizliğinin aynısı; ardından sayfa misafir olarak yeniden
+     * açılır (giriş isteyen sayfalar kendi giriş yönlendirmesini yapar).
+     * Aynı anda düşen birkaç istek tek temizlik yapar.
+     */
+    var _dropping = null;
+    Auth.dropSession = function () {
+        if (_dropping) return _dropping;
+
+        _dropping = (async function () {
+            App.store.clearUserData();
+            App.bus.emit(App.bus.EVENTS.AUTH_CHANGED, { user: null, loggedIn: false });
+            await App.catalog.clearCache();
+            window.location.reload();
+        })();
+
+        return _dropping;
     };
 
     /* ============================================================

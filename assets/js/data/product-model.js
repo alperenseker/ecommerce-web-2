@@ -87,7 +87,11 @@
     /** Fiyat yerine geçen "fiyat için sorunuz" metni (HTML). */
     M.priceOnRequestHtml = function () {
         var label = App.t('common.priceOnRequest', 'Fiyat için sorunuz');
-        var hint  = App.t('common.priceOnRequestHint', 'Fiyatları görmek için giriş yapın');
+        /* Girişli müşteride fiyat gizli değil, listesinde tanımsız:
+           "giriş yapın" demek yanlış olur (web-1 ile aynı ayrım). */
+        var hint  = App.auth && App.auth.isLoggedIn()
+            ? App.t('common.noPriceContactUs', 'No price is set for you for this product. Please contact us.')
+            : App.t('common.priceOnRequestHint', 'Fiyatları görmek için giriş yapın');
         return '<span class="price-ask" title="' + App.utils.escape(hint) + '">' +
                App.utils.escape(label) + '</span>';
     };
@@ -95,6 +99,9 @@
     /**
      * Kart / detay için hazır fiyat HTML'i.
      * Tek yerde durur ki indirim gösterimi her ekranda aynı olsun.
+     * FAZ 38: satış birimli üründe ambalaj fiyatı + "/ ad" + taban
+     * birim fiyatı (App.su). FAZ 44: özel fiyatta altında rozet.
+     * Satış birimsiz ve özel fiyatsız üründe çıktı bugünküyle aynı.
      */
     M.priceHtml = function (product) {
         if (M.isPriceHidden(product)) return M.priceOnRequestHtml();
@@ -102,9 +109,12 @@
         var price = parseFloat(pick(product, 'Price', 'price')) || 0;
         var old   = parseFloat(pick(product, 'OldPrice', 'oldPrice')) || 0;
 
-        var html = '<span class="price-now">' + App.fmt.price(price) + '</span>';
-        if (old > price) html += '<span class="price-old">' + App.fmt.price(old) + '</span>';
-        return html;
+        var html = App.su.priceHtml(product, { price: price, old: old });
+        if (html === null) {
+            html = '<span class="price-now">' + App.fmt.price(price) + '</span>';
+            if (old > price) html += '<span class="price-old">' + App.fmt.price(old) + '</span>';
+        }
+        return html + App.rules.badgeHtml(product);
     };
 
     /** İndirim yüzdesi (yoksa 0). */
@@ -125,24 +135,40 @@
      * `canOrderWithoutStock` yetkisi olan bayi stok bitse de sipariş
      * verebilir; bu yüzden "stokta yok" ile "siparişe kapalı" AYNI
      * ŞEY DEĞİLDİR.
+     *
+     * Yetki ŞİRKET BAŞINA (App.perm): ürünün şirketinde açık değilse
+     * başka şirketteki yetki işe yaramaz. Fiyatı tanımsız ürün de
+     * yetki olmadan sepete eklenemez (`priceBlocked`; sunucu reddeder).
+     * Varyant nesnelerinde şirket alanı yok; şirket [erpSource] ile verilir.
+     *
+     * Satış birimli üründe `amount` AMBALAJ sayısıdır (sunucu öyle
+     * gönderir); ekrandaki yazımı App.su.stockText verir.
      */
-    M.stock = function (product) {
+    M.stock = function (product, erpSource) {
         var amount = parseInt(pick(product, 'StockAmount', 'stockAmount'), 10) || 0;
         var status = pick(product, 'StockStatus', 'stockStatus');
         var inStock = amount > 0 && status !== App.const.STOCK_OUT;
 
-        var canOrderWithoutStock = App.store.getBool(App.keys.CAN_ORDER_NO_STOCK);
+        var canOrderWithoutStock = App.perm.canOrderWithoutStockFor(erpSource || product);
+        var priceBlocked = App.perm.isPriceBlocked(product, erpSource);
 
         if (inStock) {
-            return { amount: amount, inStock: true, canOrder: true,
+            return { amount: amount, inStock: true, canOrder: !priceBlocked, priceBlocked: priceBlocked,
                      level: 'in', label: App.t('shopList.card.inStock', App.t('stock.inStock', 'В наличии')) };
         }
         if (canOrderWithoutStock) {
-            return { amount: amount, inStock: false, canOrder: true,
+            return { amount: amount, inStock: false, canOrder: !priceBlocked, priceBlocked: priceBlocked,
                      level: 'pre', label: App.t('shopList.card.orderWithoutStock', App.t('stock.preOrder', 'Предзаказ')) };
         }
-        return { amount: amount, inStock: false, canOrder: false,
+        return { amount: amount, inStock: false, canOrder: false, priceBlocked: priceBlocked,
                  level: 'out', label: App.t('shopList.card.outOfStock', App.t('stock.outOfStock', 'Нет в наличии')) };
+    };
+
+    /** Sepete eklenemeyen ürünün düğme metni: fiyatsızsa "Цена по запросу", değilse "Нет в наличии". */
+    M.cannotAddText = function (stock) {
+        return stock && stock.priceBlocked
+            ? App.t('common.priceOnRequest', 'Цена по запросу')
+            : App.t('shopList.card.outOfStock', 'Нет в наличии');
     };
 
     /* ============================================================
@@ -219,7 +245,9 @@
                 : unit * qty;
 
             group.items.push(item);
-            group.subtotal += line;
+            /* FAZ 44 — artık görünmeyen kalem siparişe girmez; tutara da
+               katılmaz (ekranda "недоступен" olarak durur). */
+            if (!App.rules.isCartItemUnavailable(item)) group.subtotal += line;
         });
 
         return groups;

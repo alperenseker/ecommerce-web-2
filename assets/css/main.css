@@ -1,16 +1,21 @@
 /* ============================================================
    main.css — TEK GİRİŞ NOKTASI
    HTML sayfaları yalnız bu dosyayı bağlar:
-       <link rel="stylesheet" href="assets/css/main.css">
+       <link rel="stylesheet" href="assets/css/main.css?v=…">
 
    Sıra ÖNEMLİ: değişkenler → sıfırlama → düzen → parçalar → sayfa.
    Yeni bir bölüm eklerken numarayı takip et, main.css'e satır ekle.
+
+   ÖNBELLEK: @import edilen dosyalar tarayıcıda AYRI önbelleklenir;
+   main.css'in sürümü değişse de içeridekiler eski kalabilirdi. Bu
+   yüzden her @import da ?v= taşır — değer loader.js'teki VERSION ve
+   HTML'deki main.css / loader.js bağlantılarıyla aynı tutulur.
    ============================================================ */
 
-@import url("01-tokens.css");
-@import url("02-base.css");
-@import url("07-icons.css");
-@import url("03-layout.css");
-@import url("04-components.css");
-@import url("05-product.css");
-@import url("06-pages.css");
+@import url("01-tokens.css?v=20261112a");
+@import url("02-base.css?v=20261112a");
+@import url("07-icons.css?v=20261112a");
+@import url("03-layout.css?v=20261112a");
+@import url("04-components.css?v=20261112a");
+@import url("05-product.css?v=20261112a");
+@import url("06-pages.css?v=20261112a");

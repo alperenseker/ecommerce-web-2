@@ -39,6 +39,30 @@
 
         App.layout.refreshBadges();
         App.card.refreshStates();
+
+        refreshPermissions();
+    }
+
+    /**
+     * Stoksuz sipariş yetkisi (şirket başına) admin panelinden her an
+     * değişebilir; tarayıcıdaki kopya yalnız girişte yazılıyordu. Her
+     * sayfada sunucudan okunur; değiştiyse sayfa eski değerle çizildiği
+     * için BİR KEZ yenilenir (web-1 ile aynı davranış). Hariç: ödeme
+     * sayfası kendi ayar isteğini atıyor (yarım form kaybolmasın), giriş
+     * sayfası zaten girişte yazıyor.
+     */
+    function refreshPermissions() {
+        var page = App.utils.page();
+        if (page === 'checkout' || page === 'login') return;
+
+        App.perm.refresh().then(function (changed) {
+            if (!changed) return;
+            /* Döngüye karşı: kısa süre içinde ikinci kez yenileme yok. */
+            var last = parseInt(App.store.session.get('stockPermReloadAt') || '0', 10);
+            if (Date.now() - last < 10000) return;
+            App.store.session.set('stockPermReloadAt', String(Date.now()));
+            window.location.reload();
+        });
     }
 
     async function boot() {

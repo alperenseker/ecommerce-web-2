@@ -10,6 +10,12 @@
    Metin düzeltmesi kaynak projede yapılır, sonra bu dosya
    yeniden üretilir. Base sözlük (en.js) yalnız burada
    BULUNMAYAN anahtarları taşır.
+
+   Kaynak: ecommerce-web e6902a0 (prompts4 — salesUnit.*,
+   customerRules.*, common.noPriceContactUs dahil). Bu örneğe
+   (SIEGER) özgü marka / iletişim / yasal metinler BURADA değil,
+   sonra yüklenen i18n/en.site.js'tedir; yeniden üretim onları
+   ezmez.
    ============================================================ */
 
 App.i18n.merge('en', {
@@ -259,7 +265,8 @@ App.i18n.merge('en', {
         "viewCart": "View Cart",
         "checkout": "Checkout",
         "priceOnRequest": "Price on request",
-        "priceOnRequestHint": "Log in to see prices"
+        "priceOnRequestHint": "Log in to see prices",
+        "noPriceContactUs": "No price is set for you for this product. Please contact us."
     },
     "shop": {
         "pageTitle": "Fores - Shop",
@@ -1208,7 +1215,7 @@ App.i18n.merge('en', {
         },
         "s1": {
             "title": "Data Controller",
-            "p1": "The data controller responsible for your personal data is TOO FORES, registered in the Republic of Kazakhstan. By using our website at fores.kz, you agree to the terms of this Privacy Policy.",
+            "p1": "The data controller responsible for your personal data is TOO FORES, registered in the Republic of Kazakhstan. This Privacy Policy covers our website at fores.kz and our Fores mobile applications for iOS and Android. By using any of them, you agree to the terms of this Privacy Policy.",
             "p2": "If you have any questions about how we handle your data, you may contact us at any time through the contact details provided in Section 8 of this policy."
         },
         "s2": {
@@ -1370,7 +1377,7 @@ App.i18n.merge('en', {
         },
         "intro": {
             "title": "Public Offer Agreement",
-            "description": "This Public Offer Agreement governs the rights and obligations between the Seller and the Buyer for purchases made through the fores.kz website. By placing an order on the site, you accept the terms of this agreement.",
+            "description": "This Public Offer Agreement governs the rights and obligations between the Seller and the Buyer for purchases made through the fores.kz website and the Fores mobile applications for iOS and Android. By placing an order on the site or in the app, you accept the terms of this agreement.",
             "lastUpdated": "Last updated:"
         },
         "s1": {
@@ -1433,10 +1440,10 @@ App.i18n.merge('en', {
         },
         "s1": {
             "title": "How to Submit a Request",
-            "p1": "To delete your account and associated data:",
-            "step1": "Send an email with the subject \"Delete Account Request\" from your registered email address to <a href=\"mailto:info@fores.kz\">info@fores.kz</a>.",
-            "step2": "OR follow <strong>Settings &gt; Account &gt; Delete Account</strong> within the app (if available).",
-            "processing": "Your request will be processed within 30 days of receipt."
+            "p1": "There are two ways to delete your account and the data connected to it:",
+            "step1": "In the app: <strong>Account &gt; Profile &gt; Delete Account</strong>. You will be asked for your password to confirm, and your account is deleted <strong>immediately</strong>.",
+            "step2": "OR send an email to <a href=\"mailto:info@fores.kz\">info@fores.kz</a> from your registered address with the subject \"Account Deletion Request\".",
+            "processing": "Deletion started in the app completes immediately. Requests sent by email are processed within 30 days of receipt. In both cases, invoice records for your past orders are retained as required by tax law."
         },
         "s2": {
             "title": "Deleted Data",
@@ -1484,5 +1491,32 @@ App.i18n.merge('en', {
         "deleteAccount": "Delete Account Request — Fores",
         "product": "Product Details — Fores",
         "wishlist": "Wishlist — Fores"
+    },
+    "salesUnit": {
+        "packaging": "Packaging",
+        "salesUnit": "Sales unit",
+        "pricePerBase": "Price per {unit}",
+        "minOrder": "Minimum order",
+        "orderStep": "Order step",
+        "pallet": "Pallet",
+        "palletValue": "1 pallet = {line}",
+        "rulesMin": "min. {min}",
+        "rulesStep": "step {step}",
+        "belowMin": "less than the minimum order ({min})",
+        "confirmRemoveBelowMin": "The minimum order for this product is {min}. Remove it from the cart?",
+        "errors": {
+            "minOrderQty": "Minimum order: {min} × {unit}. Valid quantities: {sequence}",
+            "orderStep": "Valid quantities ({unit}): {sequence} You entered {qty}.",
+            "suggest": "Nearest valid quantity: {suggested}.",
+            "insufficientStock": "Not enough stock. Available: {available} × {unit}.",
+            "insufficientStockNoQty": "Not enough stock for the requested quantity.",
+            "cartStale": "\"{name}\": the price or packaging changed after it was added to the cart. Please check your cart and try again."
+        }
+    },
+    "customerRules": {
+        "specialPrice": "Special price for you",
+        "specialPriceHint": "This price has been set especially for you.",
+        "productUnavailable": "This product is no longer available.",
+        "unavailableInCart": "These products are no longer available and have been removed from your cart: {names}. Please review your order and try again."
     }
 });

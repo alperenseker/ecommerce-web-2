@@ -98,7 +98,13 @@
     function lineHtml(item) {
         var img = item.ProductImageUrl || item.MainImage || item.ProductImage || App.config.FALLBACK_IMAGE;
 
-        return '<div class="dline">' +
+        /* FAZ 38 — satış birimli kalem: "24 × Комплект 33 кг (792 кг)".
+           Dar panelde fiyatın yanına birim yazılmaz (taşar). */
+        var unitLine = App.su.lineText(item);
+        /* FAZ 44 — artık görünmeyen kalem: tutar yok, açık not, silme düğmesi. */
+        var gone = App.rules.isCartItemUnavailable(item);
+
+        return '<div class="dline' + (gone ? ' is-unavailable' : '') + '">' +
                    '<img class="dline__img" src="' + App.utils.escape(img) + '" alt="" loading="lazy" ' +
                         'onerror="this.src=\'' + App.config.FALLBACK_IMAGE + '\'">' +
                    '<div class="grow">' +
@@ -106,9 +112,15 @@
                             encodeURIComponent(item.ProductSlug || '') + '">' +
                            App.fmt.preserveSpaces(App.utils.escape(item.ProductName || '')) +
                        '</a>' +
-                       '<div class="dline__meta">' + (parseInt(item.Quantity, 10) || 1) + ' × ' +
-                            App.fmt.price(item.UnitPrice) + '</div>' +
-                       '<div class="dline__price">' + App.fmt.price(App.cart.lineTotal(item)) + '</div>' +
+                       (unitLine
+                           ? '<div class="dline__meta">' + App.utils.escape(unitLine) + '</div>'
+                           : '<div class="dline__meta">' + (parseInt(item.Quantity, 10) || 1) + ' × ' +
+                                 App.fmt.price(item.UnitPrice) + '</div>') +
+                       (gone
+                           ? '<div class="unavailable-note">' + App.icon('warning', 12) + '<span>' +
+                                 App.utils.escape(App.t('customerRules.productUnavailable',
+                                     'This product is no longer available.')) + '</span></div>'
+                           : '<div class="dline__price">' + App.fmt.price(App.cart.lineTotal(item)) + '</div>') +
                    '</div>' +
                    '<button class="btn btn--plain btn--sm btn--icon" type="button" ' +
                            'data-act="cart-remove" data-id="' + item.CartItemId + '" ' +

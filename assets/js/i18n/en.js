@@ -279,5 +279,22 @@ App.i18n.register('en', {
         title: 'Page not found',
         text: 'The page you are looking for may have been moved or deleted.',
         cta: 'Back to home'
+    },
+
+    /* FAZ 44 — sepette kalmış ama artık görünmeyen kalemler (kaynak
+       projede sessizce silinir; burada gösterilir, kullanıcı siler). */
+    customerRules: {
+        unavailableInCartNote: 'This product is no longer available. Remove it from your cart.',
+        unavailableCheckout: 'These products are no longer available: {names}. Remove them from your cart to place the order.'
+    },
+
+    /* Henüz belli olmayan değerlerin görünür yer tutucuları (K2.17, DURUM.md §4). */
+    site: {
+        pending: {
+            phone: '[phone to be confirmed]',
+            email: '[e-mail to be confirmed]',
+            site: '[website address to be confirmed]'
+        },
+        contactPending: 'The support e-mail address has not been published yet. Please sign in and write to us in the support chat.'
     }
 });

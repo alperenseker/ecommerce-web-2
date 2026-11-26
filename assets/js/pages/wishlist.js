@@ -85,10 +85,14 @@ App.definePage('wishlist', async function (ctx) {
         var url = 'product.html?slug=' + encodeURIComponent(item.ProductSlug || '');
 
         /* Sunucu istek listesi kaleminde de HasPrice/PriceHidden
-           gönderiyor; fiyat gizliyse "0,00 ₸" yerine bilgi metni. */
+           gönderiyor; fiyat gizliyse "0,00 ₸" yerine bilgi metni.
+           FAZ 38: satış birimli kalemde ambalaj fiyatı + "/ ad" + taban
+           fiyat (kalemin fiyat alanı ProductPrice). FAZ 44: özel fiyat rozeti. */
         var priceHtml = App.model.isPriceHidden(item)
             ? App.model.priceOnRequestHtml()
-            : '<span class="price-now">' + App.fmt.price(item.ProductPrice) + '</span>';
+            : (App.su.priceHtml(item, { price: item.ProductPrice, old: item.ProductOldPrice }) ||
+               '<span class="price-now">' + App.fmt.price(item.ProductPrice) + '</span>') +
+              App.rules.badgeHtml(item);
 
         /* Katalogdaki güncel kayıt varsa stok ondan okunur: istek
            listesi anlık görüntüsü bayat olabilir. */
@@ -108,18 +112,24 @@ App.definePage('wishlist', async function (ctx) {
                    '<td><a class="cart-item__name t-clamp-2" href="' + url + '">' +
                        App.fmt.preserveSpaces(App.utils.escape(item.ProductName || '')) + '</a></td>' +
 
-                   '<td style="white-space:nowrap">' + priceHtml + '</td>' +
+                   '<td style="white-space:nowrap">' + priceHtml +
+                       (App.su.rulesText(item) ? '<div class="su-rules">' + App.utils.escape(App.su.rulesText(item)) + '</div>' : '') +
+                   '</td>' +
 
                    '<td><span class="pcard__stock pcard__stock--' + stock.level + '">' +
                        '<span class="dot dot--' + (stock.level === 'in' ? 'ok' : stock.level === 'pre' ? 'warn' : 'err') + '"></span>' +
                        App.utils.escape(stock.label) + '</span></td>' +
 
                    '<td>' +
+                       /* Adet verilmez: sepet servisi en küçük geçerli adedi
+                          ekler (satış birimli üründe MinOrderQty — FAZ 38). */
                        '<button class="btn btn--primary btn--sm" type="button" ' +
                                'data-act="add-to-cart" data-id="' + item.ProductId + '"' +
                                (stock.canOrder ? '' : ' disabled') + '>' +
                            App.icon('cart', 13) +
-                           '<span>' + App.t('shopList.card.addToCart', 'В корзину') + '</span>' +
+                           '<span>' + (stock.canOrder
+                               ? App.t('shopList.card.addToCart', 'В корзину')
+                               : App.model.cannotAddText(stock)) + '</span>' +
                        '</button>' +
                    '</td>' +
 
@@ -173,8 +183,10 @@ App.definePage('wishlist', async function (ctx) {
         btn.classList.add('is-loading');
         var added = 0;
 
+        /* Adet verilmez: her ürün kendi en küçük geçerli adediyle girer
+           (satış birimli üründe MinOrderQty, değilse 1). */
         for (var i = 0; i < addable.length; i++) {
-            var ok = await App.cart.add(addable[i].ProductId, 1);
+            var ok = await App.cart.add(addable[i].ProductId);
             if (ok) added++;
         }
 

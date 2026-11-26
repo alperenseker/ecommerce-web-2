@@ -94,6 +94,18 @@
 
 .hero__visual { position: relative; overflow: hidden; z-index: 2; }
 .hero__visual img { width: 100%; height: 100%; object-fit: cover; }
+/* SIEGER — logo sahnesi: görsel kırpılmaz, açık zeminde ortalanır,
+   koyu geçiş katmanı logonun üstüne düşmez. */
+.hero__visual--logo { background: var(--bg-0); display: flex; align-items: center; justify-content: center; }
+.hero__visual--logo img { object-fit: contain; width: 82%; height: 82%; }
+.hero__visual--logo::before { display: none; }
+
+/* Hakkımızda — şirket kartları (SIEGER). */
+.about-logos { display: block; max-width: 420px; width: 100%; height: auto; margin: 0 auto var(--sp-4); }
+.company-card__logo { display: block; width: 120px; height: 120px; object-fit: contain; margin-bottom: var(--sp-3); }
+/* Izgarada yan yana kartlar: genel ".card + .card" boşluğu ikinciyi aşağı itmesin. */
+.about-companies .card + .card { margin-top: 0; }
+@media (max-width: 700px) { .about-companies { grid-template-columns: 1fr; } }
 .hero__visual::before {
     content: '';
     position: absolute;
@@ -527,7 +539,9 @@
 .plist__item .ico { color: var(--accent); flex-shrink: 0; }
 
 /* İletişim */
-.contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+/* auto-fit: telefon / e-posta kutusu boşken gizli (2026-11-12) — kalan kutular
+   satırı paylaşır; üçü de görünürken düzen eskisi gibi üç eşit sütun. */
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sp-4); }
 .contact-box {
     text-align: center;
     padding: var(--sp-6) var(--sp-4);

@@ -158,6 +158,42 @@ a.pcard__cat:hover { color: var(--accent); }
 .price-old { font-size: var(--fs-sm); color: var(--txt-3); text-decoration: line-through; }
 .price-ask { font-size: var(--fs-sm); font-weight: 600; color: var(--txt-3); }
 
+/* ---- FAZ 38: SATIŞ BİRİMİ (AMBALAJ) ----
+   Fiyatın yanında "/ Комплект 33 кг", altında taban birim fiyatı
+   ("821,00 ₸/кг"). Fiyat kutuları esnek (flex-wrap) olduğu için alt
+   satırlar flex-basis ile kendi satırına iner; blok bağlamda display. */
+.su-unit { font-size: var(--fs-xs); font-weight: 500; color: var(--txt-2); white-space: nowrap; }
+.su-base {
+    display: block;
+    flex-basis: 100%;
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    color: var(--txt-3);
+    line-height: 1.4;
+}
+/* "24 × Комплект 33 кг (792 кг)" (sepet / ödeme satırı) ve "мин. 24 · шаг 24". */
+.su-line  { font-size: var(--fs-xs); color: var(--txt-2); margin-top: 2px; }
+.su-rules { font-size: var(--fs-xs); color: var(--txt-3); margin-top: 4px; line-height: 1.4; }
+
+/* ---- FAZ 44: ÖZEL FİYAT ROZETİ + ARTIK GÖRÜNMEYEN KALEM ---- */
+.special-price { display: block; flex-basis: 100%; line-height: 1.4; margin-top: 3px; }
+.is-unavailable .cart-item__img,
+.is-unavailable .dline__img,
+.is-unavailable.co-line img { opacity: .45; }
+.is-unavailable .cart-item__name,
+.is-unavailable .dline__name { color: var(--txt-3); }
+.unavailable-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--danger);
+}
+.unavailable-note .btn--link { padding: 0 0 0 var(--sp-2); font-size: var(--fs-xs); }
+
 /* Stok bilgisi küçük bir hap. */
 .pcard__stock {
     display: inline-flex;
@@ -276,6 +312,21 @@ a.pcard__cat:hover { color: var(--accent); }
 .variant:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
 .variant.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); font-weight: 700; }
 .variant.is-out { opacity: .5; text-decoration: line-through; }
+
+/* FAZ 38 — ambalaj seçicisi: satırlar alt alta (ad · küçük ürün adı · fiyat). */
+.variants--list { flex-direction: column; flex-wrap: nowrap; }
+.variant--row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-3);
+}
+.variant--row.is-out { text-decoration: none; }
+.variant__label { display: flex; flex-direction: column; min-width: 0; }
+.variant__label small { font-size: var(--fs-xs); color: var(--txt-3); font-weight: 400; }
+.variant__price { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-end; gap: var(--sp-1); text-align: right; }
+.variant__price .price-now { font-size: var(--fs-md); }
 
 /* ---- ÖZELLİK TABLOSU ---- */
 .specs { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }

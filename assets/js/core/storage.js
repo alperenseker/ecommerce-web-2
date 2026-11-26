@@ -88,23 +88,37 @@
      * Çıkışta / girişte depolamayı sıfırlar ama KULLANICIDAN BAĞIMSIZ
      * tercihleri korur. Dil ayarı silinirse kullanıcı her çıkışta
      * siteyi başka dilde bulur — bu yüzden beyaz liste var.
+     *
+     * 🔴 `localStorage.clear()` KULLANILMAZ: admin-2 aynı kökte
+     * (/admin/, K2.18) kendi anahtarlarını (`flutter.*`, GetStorage)
+     * tutuyor; clear() admin oturumunu ve kayıtlı hesaplarını da
+     * siliyordu. Yalnız bu sitenin anahtarları (App.keys.OWNED) ve
+     * `wishlist_<userId>` aynaları silinir.
+     *
+     * IndexedDB katalog önbelleği burada DEĞİL, App.catalog.clearCache()
+     * ile (asenkron, beklenerek) temizlenir — bkz. auth.service.js.
      */
     S.clearUserData = function () {
-        var keep = {};
-        [App.keys.LANG].forEach(function (key) {
-            var val = S.get(key);
-            if (val !== null) keep[key] = val;
+        var keep = [App.keys.LANG];
+
+        (App.keys.OWNED || []).forEach(function (key) {
+            if (keep.indexOf(key) === -1) S.remove(key);
         });
 
-        try { localStorage.clear(); } catch (e) {}
+        /* Kullanıcıya göre ayrılmış kalp aynaları. Sondan başa
+           taranır: silme sırasında indeksler kayar. */
+        try {
+            for (var i = localStorage.length - 1; i >= 0; i--) {
+                var k = localStorage.key(i);
+                if (k && k.indexOf(App.keys.WISHLIST_PREFIX) === 0) localStorage.removeItem(k);
+            }
+        } catch (e) {}
 
         /* Katalog önbelleği kullanıcıya özel FİYAT taşır; oturum
            değişince mutlaka atılmalı, yoksa yeni kullanıcı eskinin
            fiyat kategorisini görür. */
         S.session.remove(App.keys.CACHE_PRODUCTS);
         S.session.remove(App.keys.CACHE_CATEGORIES);
-
-        Object.keys(keep).forEach(function (key) { S.set(key, keep[key]); });
     };
 
     App.store = S;

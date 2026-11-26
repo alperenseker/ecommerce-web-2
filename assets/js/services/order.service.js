@@ -93,14 +93,16 @@
      * @returns {Promise<Object|null>} sunucudan dönen Data (grup bilgisi)
      */
     Order.create = async function (data) {
+        /* Stoksuz sipariş yetkisi gövdede GÖNDERİLMEZ: sunucu her kalemi
+           kendi şirketindeki yetkiyle denetliyor (CreateOrderRequest'te
+           böyle bir alan yok). Kimlik token'dan; UserId eşleşmezse 403. */
         var body = {
             UserId:            App.auth.userId(),
             ShippingAddressId: data.shippingAddressId,
             BillingAddressId:  data.billingAddressId,
             PaymentMethod:     data.paymentMethod,
             CustomerNote:      data.customerNote || '',
-            CouponCode:        data.couponCode || '',
-            CanOrderWithoutStock: App.store.getBool(App.keys.CAN_ORDER_NO_STOCK)
+            CouponCode:        data.couponCode || ''
         };
 
         var res = await App.api.orders.create(body);

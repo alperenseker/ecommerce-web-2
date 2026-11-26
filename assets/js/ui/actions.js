@@ -34,10 +34,20 @@
 
     var handlers = {
 
-        /* ---------- SEPET ---------- */
+        /* ---------- SEPET ----------
+           Adet kutusu yoksa (kart, istek listesi, karşılaştırma) adet
+           VERİLMEZ: sepet servisi ürünün en küçük geçerli adedini seçer
+           (satış birimli üründe MinOrderQty — FAZ 38). Satış birimli
+           kutuda değer Number ile okunur: "24.5" parseInt ile sessizce
+           24'e inmesin, kural kontrolü yakalasın. */
         'add-to-cart': function (btn) {
             var qtyInput = document.getElementById(btn.dataset.qtyTarget || '');
-            var qty = qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1;
+            var qty;
+            if (qtyInput) {
+                qty = App.su.inputRules(qtyInput)
+                    ? Number(qtyInput.value)
+                    : (parseInt(qtyInput.value, 10) || 1);
+            }
             return lock(btn, App.cart.add(btn.dataset.id, qty));
         },
 
@@ -146,9 +156,25 @@
 
     function stepQty(btn, delta) {
         var input = document.getElementById(btn.dataset.target);
-        if (!input) return;
+        if (!input || input.disabled) return;
 
-        var next = App.utils.clamp((parseInt(input.value, 10) || 1) + delta, 1, 100000);
+        var next;
+        var rules = App.su.inputRules(input);
+
+        if (rules) {
+            /* FAZ 38 — satış birimli kutu: ± ADIM kadar (24 → 48 → 72),
+               elle yazılmış geçersiz değerden en yakın geçerli adede.
+               Sepet satırında minimumdayken "−": değer minimumun altına
+               indirilir, satırın değişim işleyicisi silmeyi sorar. */
+            var cur = parseInt(input.value, 10);
+            if (delta < 0 && input.dataset.cartItem && cur <= rules.min) {
+                next = rules.min - rules.step;
+            } else {
+                next = App.su.stepQty(input.value, rules, delta);
+            }
+        } else {
+            next = App.utils.clamp((parseInt(input.value, 10) || 1) + delta, 1, 100000);
+        }
         if (next === parseInt(input.value, 10)) return;
 
         input.value = next;

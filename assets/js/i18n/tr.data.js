@@ -10,6 +10,12 @@
    Metin düzeltmesi kaynak projede yapılır, sonra bu dosya
    yeniden üretilir. Base sözlük (tr.js) yalnız burada
    BULUNMAYAN anahtarları taşır.
+
+   Kaynak: ecommerce-web e6902a0 (prompts4 — salesUnit.*,
+   customerRules.*, common.noPriceContactUs dahil). Bu örneğe
+   (SIEGER) özgü marka / iletişim / yasal metinler BURADA değil,
+   sonra yüklenen i18n/tr.site.js'tedir; yeniden üretim onları
+   ezmez.
    ============================================================ */
 
 App.i18n.merge('tr', {
@@ -253,7 +259,8 @@ App.i18n.merge('tr', {
         "viewCart": "Sepeti Görüntüle",
         "checkout": "Ödeme",
         "priceOnRequest": "Fiyat sorunuz",
-        "priceOnRequestHint": "Fiyatları görmek için giriş yapın"
+        "priceOnRequestHint": "Fiyatları görmek için giriş yapın",
+        "noPriceContactUs": "Bu ürün için size tanımlı bir fiyat yok. Lütfen bizimle iletişime geçin."
     },
     "shop": {
         "pageTitle": "Fores - Mağaza",
@@ -1202,7 +1209,7 @@ App.i18n.merge('tr', {
         },
         "s1": {
             "title": "Veri Sorumlusu",
-            "p1": "Kişisel verilerinizden sorumlu veri sorumlusu, Kazakistan Cumhuriyeti'nde kayıtlı TOO FORES'tir. fores.kz web sitemizi kullanarak bu Gizlilik Politikası'nın şartlarını kabul etmiş olursunuz.",
+            "p1": "Kişisel verilerinizden sorumlu veri sorumlusu, Kazakistan Cumhuriyeti'nde kayıtlı TOO FORES'tir. Bu Gizlilik Politikası fores.kz web sitemizi ve iOS ile Android için Fores mobil uygulamalarımızı kapsar. Bunlardan herhangi birini kullanarak bu Gizlilik Politikası'nın şartlarını kabul etmiş olursunuz.",
             "p2": "Verilerinizi nasıl işlediğimize ilişkin sorularınız için bu politikanın 8. bölümündeki iletişim bilgileri aracılığıyla bize ulaşabilirsiniz."
         },
         "s2": {
@@ -1364,7 +1371,7 @@ App.i18n.merge('tr', {
         },
         "intro": {
             "title": "Kamuya Açık Teklif Sözleşmesi",
-            "description": "Bu Teklif Sözleşmesi (оферта), fores.kz web sitesi üzerinden alışveriş yapan tüm müşteriler için Satıcı ile Alıcı arasındaki hak ve yükümlülükleri düzenler. Sitede sipariş vererek bu sözleşmenin şartlarını kabul etmiş sayılırsınız.",
+            "description": "Bu Teklif Sözleşmesi (оферта), fores.kz web sitesi ve iOS ile Android için Fores mobil uygulamaları üzerinden alışveriş yapan tüm müşteriler için Satıcı ile Alıcı arasındaki hak ve yükümlülükleri düzenler. Sitede veya uygulamada sipariş vererek bu sözleşmenin şartlarını kabul etmiş sayılırsınız.",
             "lastUpdated": "Son güncelleme:"
         },
         "s1": {
@@ -1427,10 +1434,10 @@ App.i18n.merge('tr', {
         },
         "s1": {
             "title": "Nasıl Talep Oluşturulur",
-            "p1": "Hesabınızı ve ilişkili verilerinizi silmek için:",
-            "step1": "<a href=\"mailto:info@fores.kz\">info@fores.kz</a> adresine, kayıtlı e-posta adresinizden \"Hesap Silme Talebi\" konulu bir e-posta gönderin.",
-            "step2": "VEYA uygulama içinde <strong>Ayarlar &gt; Hesap &gt; Hesabı Sil</strong> yolunu izleyin (varsa).",
-            "processing": "Talebiniz alındıktan sonra 30 gün içinde işleme alınır."
+            "p1": "Hesabınızı ve ilişkili verilerinizi silmenin iki yolu vardır:",
+            "step1": "Uygulama içinde: <strong>Hesap &gt; Profil &gt; Hesabı Sil</strong>. Onay için parolanız istenir ve hesabınız <strong>anında</strong> silinir.",
+            "step2": "VEYA <a href=\"mailto:info@fores.kz\">info@fores.kz</a> adresine, kayıtlı e-posta adresinizden \"Hesap Silme Talebi\" konulu bir e-posta gönderin.",
+            "processing": "Uygulama içinden yapılan silme anında tamamlanır. E-posta ile gelen talepler alındıktan sonra 30 gün içinde işleme alınır. Geçmiş siparişlerinize ait fatura kayıtları, vergi mevzuatı gereği her iki durumda da saklanır."
         },
         "s2": {
             "title": "Silinen Veriler",
@@ -1478,5 +1485,32 @@ App.i18n.merge('tr', {
         "deleteAccount": "Hesap Silme Talebi — Fores",
         "product": "Ürün Detayı — Fores",
         "wishlist": "Favoriler — Fores"
+    },
+    "salesUnit": {
+        "packaging": "Ambalaj",
+        "salesUnit": "Satış birimi",
+        "pricePerBase": "{unit} fiyatı",
+        "minOrder": "Minimum sipariş",
+        "orderStep": "Sipariş adımı",
+        "pallet": "Palet",
+        "palletValue": "1 palet = {line}",
+        "rulesMin": "en az {min}",
+        "rulesStep": "adım {step}",
+        "belowMin": "minimum siparişten az ({min})",
+        "confirmRemoveBelowMin": "Bu ürünün minimum siparişi {min}. Sepetten çıkarılsın mı?",
+        "errors": {
+            "minOrderQty": "Minimum sipariş: {min} × {unit}. Geçerli adetler: {sequence}",
+            "orderStep": "Geçerli adetler ({unit}): {sequence} Girdiğiniz: {qty}.",
+            "suggest": "En yakın geçerli adet: {suggested}.",
+            "insufficientStock": "Stok yetersiz. Mevcut: {available} × {unit}.",
+            "insufficientStockNoQty": "İstenen adet için stok yetersiz.",
+            "cartStale": "\"{name}\": sepete eklendikten sonra fiyatı ya da ambalajı değişti. Sepetinizi kontrol edip tekrar deneyin."
+        }
+    },
+    "customerRules": {
+        "specialPrice": "Size özel fiyat",
+        "specialPriceHint": "Bu fiyat size özel olarak belirlendi.",
+        "productUnavailable": "Bu ürün artık mevcut değil.",
+        "unavailableInCart": "Bu ürünler artık mevcut değil ve sepetinizden kaldırıldı: {names}. Lütfen siparişinizi kontrol edip tekrar deneyin."
     }
 });

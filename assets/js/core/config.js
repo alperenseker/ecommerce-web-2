@@ -26,12 +26,23 @@ App.definePage = function (name, init) { App.pages[name] = init; };
 
 /* ------------------------------------------------------------
    API
-   BASE_URL sonunda /api YOKTUR; http katmanı ekler. Sunucu
-   değiştiğinde yalnız bu satır değişir.
+   Bu site İKİNCİ örneğin (ecommerce-api-2, Sieger) mağazasıdır.
+   API-2, API-1'in sunucusunda `/ecommerce2` öneki altında yaşar
+   (YARP); önek kırpılmadan iletilir. API-1'e (`:5006/api`) ASLA
+   bağlanmamalı — başka veritabanı, başka şirketler.
+   Sunucu değiştiğinde yalnız bu satırlar değişir.
    ------------------------------------------------------------ */
 App.config = {
-    API_ORIGIN: 'https://ecom.aycom.kz:5006',
-    API_BASE:   'https://ecom.aycom.kz:5006/api',
+    API_ORIGIN: 'https://ecom.aycom.kz:5006/ecommerce2',
+    API_BASE:   'https://ecom.aycom.kz:5006/ecommerce2/api',
+
+    /* K2.17 — SİTENİN KENDİ ADRESİ (alan adı henüz belli değil).
+       Mutlak site bağlantısı gereken HER yer (privacy-deleteacc
+       sayfalarının "Ana sayfa" bağlantısı, metinlerdeki {site}
+       yer tutucusu) bunu okur. Boşken bağlantılar göreli kalır,
+       metinlerde görünür bir yer tutucu yazılır.
+       Örnek: 'https://sieger.kz' (sonda / yok). */
+    SITE_BASE: 'https://m.sieger.one',
 
     /* Katalog tek istekte çekilir; bu sayı toplam ürün sayısının
        ÜSTÜNDE kalmalı. Sunucu 'ORDER BY createdat DESC' sıralıyor,
@@ -71,26 +82,36 @@ App.config = {
     /* Karşılaştırmaya en fazla kaç ürün (sunucu da sınırlar). */
     COMPARE_LIMIT: 4,
 
-    /* Mağaza kimliği — logo/başlık/footer metinleri.
-       Telefon/e-posta kaynak projedeki iletişim sayfasıyla birebir
-       aynıdır; iki sitede farklı numara görünmesi müşteriyi bölüyor. */
+    /* Mağaza kimliği — logo/başlık/footer metinleri (SIEGER).
+       K2.14: başlıkta iki şirketin logosu YAN YANA (tek görsel).
+       K2.27: logolar SAYDAM — açık zeminde siyah yazılı `logo`,
+       koyu zeminde (alt bilgi) beyaz yazılı `logoDark`; beyaz plaka yok.
+       Slogan bilerek YOK (uydurulmaz). Telefon ve e-posta henüz
+       belli değil: boş bırakıldı, ekranda görünür yer tutucu yazılır
+       (App.layout.contactLink). Değer gelince yalnız bu satırlar dolar.
+       Adres: Sieger Kunststoff'un 1C'deki yasal (= fiili) adresi. */
     BRAND: {
-        name:    'FORES',
+        name:    'SIEGER',
         suffix:  '',
-        logo:    'assets/img/logo.png',
-        tagline: 'Оконная и дверная фурнитура',
-        phone:   '+7 701 057 0316',
-        phone2:  '+7 701 057 0302',
-        email:   'info@fores.kz',
-        address: 'Boralday, Промзона 74, Илийский район, Алматинская область'
+        logo:     'assets/img/logo/sieger-logolar-saydam.png',
+        logoDark: 'assets/img/logo/sieger-logolar-saydam-koyu.png',
+        tagline: '',
+        phone:   '',
+        phone2:  '',
+        email:   '',
+        address: 'Республика Казахстан, 050019, г. Алматы, Медеуский район, ул. Гурилева, дом 110А'
     },
 
     /* ---- HALYK ePay ----
        PostLink SUNUCUYA gider (server-to-server); widget adresini
        (test/canlı) backend `/payments/epay-token` yanıtında
-       `widgetUrl` alanıyla söyler, istemci sabit adres GÖMMEZ. */
+       `widgetUrl` alanıyla söyler, istemci sabit adres GÖMMEZ.
+       PostLink API-2'nin ucudur (önekli); API-1'inki olursa banka
+       ödemeyi başka örneğe bildirir ve sipariş "ödenmedi" kalır.
+       K2.13: Sieger şimdilik `transfer_only` (havale) — ePay akışı
+       /settings/public `gateway` dönene kadar hiç açılmaz. */
     EPAY: {
-        postLink: 'https://ecom.aycom.kz:5006/api/payments/epay-postlink',
+        postLink: 'https://ecom.aycom.kz:5006/ecommerce2/api/payments/epay-postlink',
         currency: 'KZT'
     },
 
@@ -118,19 +139,43 @@ App.keys = {
     CAN_ORDER_NO_STOCK:    'canOrderWithoutStock',
     PRICE_CATEGORY:        'priceCategory',
 
+    /* Stoksuz sipariş yetkisi ŞİRKET BAŞINA (web-1 ile aynı ad):
+       { "<şirket kodu/kimliği küçük harfle>": true|false }.
+       Yoksa (eski oturum) birleşik CAN_ORDER_NO_STOCK'a düşülür. */
+    COMPANY_STOCK:         'companyStockPermissions',
+
     /* Şirket bilgileri (bireysel girişimci / tüzel kişi). */
     COMPANY_NAME:     'ipCompanyName',
     COMPANY_DIRECTOR: 'ipCompanyDirector',
     COMPANY_ADDRESS:  'companyAddress',
     COMPANY_IIN:      'ipCompanyIin',
 
-    /* Yerel aynalar. */
+    /* Yerel aynalar (sessionStorage). */
     CACHE_PRODUCTS:   'cache_products',
     CACHE_CATEGORIES: 'cache_categories',
     /* Kalp durumunun yerel aynası kullanıcıya göre ayrılır:
        wishlist_<userId>  →  App.keys.wishlist(userId) */
-    wishlist: function (userId) { return 'wishlist_' + userId; }
+    WISHLIST_PREFIX: 'wishlist_',
+    wishlist: function (userId) { return App.keys.WISHLIST_PREFIX + userId; }
 };
+
+/* ------------------------------------------------------------
+   BU SİTENİN localStorage ANAHTARLARI — TAM LİSTE
+   🔴 K2.18: admin-2 AYNI kökte (/admin/) yaşar; Flutter kendi
+   anahtarlarını (`flutter.*`, GetStorage) aynı localStorage'a
+   yazar. Çıkış/girişte `localStorage.clear()` admin oturumunu ve
+   kayıtlı hesaplarını da silerdi. Temizlik YALNIZ bu listeyi ve
+   `wishlist_<userId>` aynalarını siler (App.store.clearUserData).
+   Yeni bir anahtar eklendiğinde buraya da eklenir.
+   ------------------------------------------------------------ */
+App.keys.OWNED = [
+    App.keys.TOKEN, App.keys.USER, App.keys.USER_ID, App.keys.ACCOUNT,
+    App.keys.IIN, App.keys.LANG, App.keys.REMEMBER,
+    App.keys.CAN_BYPASS_PAYMENT, App.keys.CAN_ORDER_NO_STOCK,
+    App.keys.PRICE_CATEGORY, App.keys.COMPANY_STOCK,
+    App.keys.COMPANY_NAME, App.keys.COMPANY_DIRECTOR,
+    App.keys.COMPANY_ADDRESS, App.keys.COMPANY_IIN
+];
 
 /* ------------------------------------------------------------
    SABİTLER
@@ -155,11 +200,42 @@ App.const = {
 
     /* Şirket (1C kaynağı) kodu → ekranda görünecek ad.
        Yeni bir 1C bağlandığında buraya tek satır eklenir; eşleşme
-       yoksa kodun baş harfi büyütülerek gösterilir. */
+       yoksa kodun baş harfi büyütülerek gösterilir.
+       Kodlar ecommerce2 tabanındaki erp_sources.code ile aynı. */
     ERP_LABELS: {
-        fores: 'Fores',
-        foral: 'Foral',
-        stark: 'Stark Alpha'
+        siegerkf:  'Sieger Kunststoff',
+        siegersys: 'Sieger Systems'
+    }
+};
+
+/* ------------------------------------------------------------
+   SİTE ADRESİ YARDIMCILARI (K2.17)
+   Alan adı tek satırda (App.config.SITE_BASE). Bu yardımcılar
+   config.js içinde durur çünkü privacy-deleteacc sayfaları
+   uygulamanın geri kalanını YÜKLEMEDEN yalnız bu dosyayı okur.
+   ------------------------------------------------------------ */
+App.site = {
+    /** 'https://sieger.kz' gibi kök; boşsa ''. Sondaki / atılır. */
+    base: function () {
+        return String(App.config.SITE_BASE || '').trim().replace(/\/+$/, '');
+    },
+
+    /** Sitedeki bir sayfanın adresi: kök tanımlıysa mutlak, değilse verilen göreli yol. */
+    url: function (path, relativeFallback) {
+        var base = App.site.base();
+        var clean = String(path || '').replace(/^\/+/, '');
+        return base ? base + '/' + clean : (relativeFallback !== undefined ? relativeFallback : clean);
+    },
+
+    /** Metinlerde görünen alan adı ("sieger.kz"); kök tanımlı değilse ''. */
+    host: function () {
+        var base = App.site.base();
+        return base.replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '');
+    },
+
+    /** Değer bilinmiyor mu (boş)? Ekranda yer tutucu yazılır, bağlantı kurulmaz. */
+    isPending: function (value) {
+        return !String(value === null || value === undefined ? '' : value).trim();
     }
 };
 

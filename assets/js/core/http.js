@@ -67,7 +67,11 @@
 
         var response = await fetch(App.config.API_BASE + path, config);
 
-        if (!response.ok) throw await buildError(response);
+        if (!response.ok) {
+            var err = await buildError(response);
+            if (response.status === 401 && config.headers.Authorization) staleSession(path);
+            throw err;
+        }
 
         /* 204 No Content gibi gövdesiz yanıtlar. */
         var text = await response.text();
@@ -89,20 +93,44 @@
     async function buildError(response) {
         var message = 'HTTP ' + response.status;
         var errorCode = null;
+        var errorDetails = null;
 
-        try {
-            var body = await response.json();
+        /* Gövde BİR KEZ okunur: json() başarısız olunca text()
+           aynı akışı ikinci kez okuyamaz. */
+        var raw = await response.text().catch(function () { return ''; });
+        var body = App.utils.parseJson(raw);
+
+        if (body && typeof body === 'object') {
             message = body.Message || body.message || body.title || JSON.stringify(body);
             errorCode = body.errorCode || body.ErrorCode || null;
-        } catch (e) {
-            var raw = await response.text().catch(function () { return ''; });
-            if (raw) message = raw;
+            /* FAZ 36/42 — kuralın ayrıntısı (min, adım, birim adı,
+               önerilen adet; gizlenen kalemlerin adları). İstemci
+               mesajı sunucunun tek dilindeki metinden değil BUNDAN
+               kendi dilinde kurar (App.su / App.rules). */
+            errorDetails = body.errorDetails || body.ErrorDetails || null;
+        } else if (raw) {
+            message = raw;
         }
 
         var err = new Error(message);
         err.status = response.status;
         err.errorCode = errorCode;
+        err.errorDetails = errorDetails;
         return err;
+    }
+
+    /**
+     * Token'lı istek 401 döndü → oturum bayat (süresi dolmuş ya da
+     * anahtar değişmiş jeton). Girişli görünen ama her istekte
+     * reddedilen kullanıcı ne sepetini görür ne giriş sayfasına
+     * ulaşabilir (giriş sayfası "zaten girişli" deyip geri yollar).
+     * Çıkıştaki temizliğin aynısı yapılır (App.auth.dropSession);
+     * kimlik/OTP uçlarındaki 401 (yanlış parola vb.) oturumu düşürmez.
+     */
+    function staleSession(path) {
+        if (/^\/(auth|otp)\//i.test(path)) return;
+        if (!App.store.get(App.keys.USER_ID)) return;
+        if (App.auth && typeof App.auth.dropSession === 'function') App.auth.dropSession();
     }
 
     /** PascalCase / camelCase karışıklığını tek biçime indirir. */
@@ -165,6 +193,7 @@
                     var res = App.utils.parseJson(xhr.responseText);
                     resolve(res ? (res.mediaUrl || res.url || res.fileUrl || res) : xhr.responseText);
                 } else {
+                    if (xhr.status === 401 && token) staleSession(path);
                     reject(new Error('Yükleme başarısız: HTTP ' + xhr.status));
                 }
             };

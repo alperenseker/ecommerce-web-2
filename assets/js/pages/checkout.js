@@ -259,18 +259,73 @@ App.definePage('checkout', async function (ctx) {
 
     function lineHtml(item) {
         var img = item.ProductImageUrl || item.MainImage || item.ProductImage || App.config.FALLBACK_IMAGE;
+        var unitLine = App.su.lineText(item);
+        var gone = App.rules.isCartItemUnavailable(item);
 
-        return '<div class="co-line">' +
+        return '<div class="co-line' + (gone ? ' is-unavailable' : '') + '">' +
                    '<img src="' + App.utils.escape(img) + '" alt="" loading="lazy" ' +
                         'onerror="this.src=\'' + App.config.FALLBACK_IMAGE + '\'">' +
                    '<div class="grow">' +
                        '<div class="t-clamp-2">' +
                            App.fmt.preserveSpaces(App.utils.escape(item.ProductName || '')) + '</div>' +
-                       '<div class="co-line__qty">' + (parseInt(item.Quantity, 10) || 1) + ' × ' +
-                           App.fmt.price(item.UnitPrice) + '</div>' +
+                       /* FAZ 38 — "48 × Комплект 33 кг (1 584 кг)" (taban miktar sunucudan). */
+                       '<div class="co-line__qty">' +
+                           (unitLine
+                               ? App.utils.escape(unitLine) + ' · ' + App.fmt.price(item.UnitPrice) +
+                                 ' / ' + App.utils.escape(App.su.info(item).name)
+                               : (parseInt(item.Quantity, 10) || 1) + ' × ' + App.fmt.price(item.UnitPrice)) +
+                       '</div>' +
+                       (gone
+                           ? '<div class="unavailable-note">' + App.icon('warning', 12) + '<span>' +
+                                 App.utils.escape(App.t('customerRules.productUnavailable',
+                                     'This product is no longer available.')) + '</span>' +
+                                 '<button class="btn btn--link btn--sm" type="button" data-act="cart-remove" ' +
+                                         'data-id="' + item.CartItemId + '">' +
+                                     App.t('common.remove', 'Убрать') + '</button>' +
+                             '</div>'
+                           : '') +
                    '</div>' +
-                   '<span class="co-line__sum">' + App.fmt.price(App.cart.lineTotal(item)) + '</span>' +
+                   '<span class="co-line__sum">' +
+                       (gone ? '<span class="t-dim">—</span>' : App.fmt.price(App.cart.lineTotal(item))) +
+                   '</span>' +
                '</div>';
+    }
+
+    /**
+     * FAZ 44 — sepette artık görünmeyen kalem varken sipariş verilemez
+     * (sunucu da 404 product_unavailable ile reddeder). Kapı ekranda
+     * önceden, adlarla ve kullanıcının dilinde görünür.
+     */
+    function unavailableBlockHtml() {
+        var note = App.rules.unavailableCartText(App.cart.items);
+        if (!note) return '';
+        return '<div class="alert alert--danger mt-3">' + App.icon('warning', 15) +
+                   '<span>' + App.utils.escape(note) + '</span></div>';
+    }
+
+    /**
+     * Sipariş reddinin kullanıcıya gösterilecek metni (sunucu mesajı tek
+     * dilde). FAZ 44: gizlenen kalemler (adlarla) → sepet tazelenir, kalemler
+     * "недоступен" olarak görünür. FAZ 38: min / adım / bayat sepet / stok →
+     * çevrilmiş; bayat sepette sepet sunucudan yenilenir (GET fiyatı tazeler).
+     * Tanınmayan hatada sunucunun metni (bugünkü davranış).
+     */
+    function orderErrorText(error) {
+        var gone = App.rules.unavailableOrderText(error);
+        if (gone) {
+            App.cart.load();
+            return gone;
+        }
+
+        if (error && error.errorCode === 'cart_stale') App.cart.load();
+
+        var unit = App.su.errorMessage(error, null);
+        if (unit) return unit;
+
+        if (error && error.errorCode === 'insufficient_stock') {
+            return App.t('salesUnit.errors.insufficientStockNoQty', 'Not enough stock for the requested quantity.');
+        }
+        return (error && error.message) || '';
     }
 
     /* ---------- ödeme yöntemleri ---------- */
@@ -327,7 +382,8 @@ App.definePage('checkout', async function (ctx) {
 
     function summaryHtml() {
         var t = App.t;
-        var blocked = userLimits && userLimits.canProceed === false;
+        var unavailable = App.cart.unavailableItems().length > 0;
+        var blocked = (userLimits && userLimits.canProceed === false) || unavailable;
 
         return '<aside class="card summary">' +
                    '<div class="card__head">' +
@@ -350,10 +406,12 @@ App.definePage('checkout', async function (ctx) {
                            '<b>' + App.fmt.price(App.cart.total()) + '</b>' +
                        '</div>' +
 
-                       (blocked
+                       (userLimits && userLimits.canProceed === false
                            ? '<div class="alert alert--danger mt-3">' + App.icon('warning', 15) +
                                  '<span>' + App.utils.escape(userLimits.error) + '</span></div>'
                            : '') +
+
+                       unavailableBlockHtml() +
                    '</div>' +
 
                    '<div class="card__foot flex-col gap-2">' +
@@ -420,6 +478,14 @@ App.definePage('checkout', async function (ctx) {
 
         if (App.cart.isEmpty()) return App.toast.error(t('checkout.messages.emptyCart', ''));
 
+        /* FAZ 44 — artık görünmeyen kalem varken istek gönderilmez. */
+        var goneText = App.rules.unavailableCartText(App.cart.items);
+        if (goneText) {
+            App.toast.error(App.utils.escape(goneText));
+            render();
+            return;
+        }
+
         /* Limit kontrolü sipariş anında TEKRAR koşar: sepet bu arada
            değişmiş olabilir. */
         userLimits = await checkLimits();
@@ -452,7 +518,8 @@ App.definePage('checkout', async function (ctx) {
                 await directFlow(method, isCompany);
             }
         } catch (err) {
-            App.toast.error(t('checkout.messages.orderError', 'Ошибка при создании заказа') + ': ' + err.message);
+            App.toast.error(t('checkout.messages.orderError', 'Ошибка при создании заказа') + ': ' +
+                            App.utils.escape(orderErrorText(err)));
         }
 
         btn.classList.remove('is-loading');

@@ -304,6 +304,9 @@ App.definePage('order', async function (ctx) {
                        var qty = parseInt(f(item, 'quantity'), 10) || 1;
                        var line = parseFloat(f(item, 'totalPrice'));
                        if (isNaN(line)) line = (parseFloat(f(item, 'unitPrice')) || 0) * qty;
+                       /* FAZ 38 — sipariş anının kopyası: "24 × Комплект 29,7 кг (712,8 кг)".
+                          Satış birimsiz (ya da FAZ 36 öncesi) kalemde yalnız adet. */
+                       var unitLine = App.su.lineText(item);
 
                        return '<tr>' +
                                   '<td style="width:74px"><img class="cart-item__img" ' +
@@ -312,7 +315,7 @@ App.definePage('order', async function (ctx) {
                                   '<td><span class="cart-item__name">' +
                                       App.fmt.preserveSpaces(App.utils.escape(f(item, 'productName') || '')) +
                                       '</span></td>' +
-                                  '<td>' + qty + '</td>' +
+                                  '<td>' + (unitLine ? App.utils.escape(unitLine) : qty) + '</td>' +
                                   '<td class="t-right t-bold">' + App.fmt.price(line) + '</td>' +
                               '</tr>';
                    }).join('') + '</tbody>' +

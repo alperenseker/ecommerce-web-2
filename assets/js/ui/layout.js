@@ -51,12 +51,15 @@
 
                     /* Destek hattı burada: ana satırda logo ile aramanın
                        arasında yer kalmıyordu, künye şeridi ise tam bu
-                       tür kısa bilgiler için. */
-                    '<a class="utilbar__note utilbar__phone" href="tel:' + B.phone.replace(/\s/g, '') + '">' +
-                        App.icon('headset', 12) +
-                        '<span>' + t('footer.gotQuestion', '') + '</span>' +
-                        '<b>' + App.utils.escape(B.phone) + '</b>' +
-                    '</a>' +
+                       tür kısa bilgiler için. Numara henüz belli değilse
+                       satır hiç çizilmez (2026-11-12 kararı: boşken görünmesin). */
+                    (App.site.isPending(B.phone)
+                        ? ''
+                        : '<a class="utilbar__note utilbar__phone" href="tel:' + B.phone.replace(/\s/g, '') + '">' +
+                              App.icon('headset', 12) +
+                              '<span>' + t('footer.gotQuestion', '') + '</span>' +
+                              '<b>' + App.utils.escape(B.phone) + '</b>' +
+                          '</a>') +
 
                     '<span class="utilbar__spacer"></span>' +
 
@@ -155,14 +158,56 @@
                '</button>';
     }
 
-    /** Logo — ikon yok; kimlik yazının kendisi ve altındaki künye. */
-    function logoHtml() {
+    /**
+     * Logo — K2.14: iki şirketin logosu YAN YANA tek görselde
+     * (Sieger Kunststoff + Sieger Systems). Görsel yüklenemezse ad
+     * yazı olarak görünür (alt metni). Künye (slogan) bilerek yok.
+     * K2.27: görseller saydam; plaka yok.
+     * @param {boolean} [onDark] alt bilgide koyu zemin: beyaz yazılı
+     *        saydam sürüm (BRAND.logoDark) kullanılır.
+     */
+    function logoHtml(onDark) {
+        var src = (onDark && B.logoDark) ? B.logoDark : B.logo;
+        if (src) {
+            return '<a class="logo logo--image' + (onDark ? ' logo--dark' : '') + '" href="index.html"' +
+                       (B.tagline ? ' data-tag="' + App.utils.escape(B.tagline) + '"' : '') + '>' +
+                       '<img class="logo__img" src="' + App.utils.escape(src) + '" ' +
+                            'alt="' + App.utils.escape(B.name + (B.suffix || '')) + '" width="187" height="60">' +
+                   '</a>';
+        }
         return '<a class="logo" href="index.html" data-tag="' +
                    App.utils.escape(B.tagline) + '">' +
                    '<span class="logo__text">' + App.utils.escape(B.name) +
                        (B.suffix ? '<em>' + App.utils.escape(B.suffix) + '</em>' : '') +
                    '</span>' +
                '</a>';
+    }
+
+    /**
+     * Telefon / e-posta bağlantısı. Değer henüz belli değilse (K2.17 ve
+     * DURUM.md §4: Sieger'in destek e-postası ve tam telefonu bekleniyor)
+     * bağlantı KURULMAZ, görünür bir yer tutucu yazılır.
+     */
+    function contactLink(kind, value) {
+        if (App.site.isPending(value)) {
+            return '<span class="pending">' + App.utils.escape(App.t(
+                kind === 'tel' ? 'site.pending.phone' : 'site.pending.email',
+                kind === 'tel' ? '[phone to be confirmed]' : '[e-mail to be confirmed]')) + '</span>';
+        }
+        var href = kind === 'tel' ? 'tel:' + String(value).replace(/\s/g, '') : 'mailto:' + value;
+        return '<a href="' + App.utils.escape(href) + '">' + App.utils.escape(value) + '</a>';
+    }
+    Layout.contactLink = contactLink;
+
+    /**
+     * Alt bilgideki tek iletişim satırı (simge + bağlantı). Değer henüz
+     * belli değilse satır HİÇ çizilmez (2026-11-12 kararı: "boşken hiç
+     * görünmesin") — yer tutucu yalnız contactLink'i doğrudan çağıranlarda.
+     */
+    function contactRow(icon, kind, value) {
+        if (App.site.isPending(value)) return '';
+        return '<div class="footer__contact-row">' + App.icon(icon, 15) +
+                   contactLink(kind, value) + '</div>';
     }
 
     /**
@@ -283,19 +328,27 @@
             '<div class="container footer__top">' +
 
                 '<div>' +
-                    logoHtml() +
-                    '<p class="footer__brand-text">' + t('footer.registerDesc', '') + '</p>' +
-                    '<div class="footer__contact-row">' + App.icon('headset', 15) +
-                        '<span>' + t('footer.gotQuestion', '') + '</span></div>' +
-                    '<div class="footer__contact-row">' + App.icon('phone', 15) +
-                        '<a href="tel:' + B.phone.replace(/\s/g, '') + '">' + B.phone + '</a></div>' +
-                    '<div class="footer__contact-row">' + App.icon('phone', 15) +
-                        '<a href="tel:' + B.phone2.replace(/\s/g, '') + '">' + B.phone2 + '</a></div>' +
-                    '<div class="footer__contact-row">' + App.icon('mail', 15) +
-                        '<a href="mailto:' + B.email + '">' + B.email + '</a></div>' +
+                    logoHtml(true) +
+                    /* Kaynak projenin anlamsız şablon cümlesi SIEGER katmanında
+                       boşaltıldı (uydurma metin yazılmaz); boşsa paragraf hiç
+                       çizilmez. */
+                    (t('footer.registerDesc', '')
+                        ? '<p class="footer__brand-text">' + t('footer.registerDesc', '') + '</p>'
+                        : '') +
+                    /* "Sorunuz mu var?" başlığı yalnız altında bir iletişim
+                       satırı varsa; boş değer satırı hiç çizilmez (2026-11-12). */
+                    (App.site.isPending(B.phone) && App.site.isPending(B.email) ? '' :
+                        '<div class="footer__contact-row">' + App.icon('headset', 15) +
+                            '<span>' + t('footer.gotQuestion', '') + '</span></div>') +
+                    contactRow('phone', 'tel', B.phone) +
+                    /* İkinci hat yalnız tanımlıysa (Fores/Foral'ın iki hattı vardı). */
+                    contactRow('phone', 'tel', B.phone2) +
+                    contactRow('mail', 'mail', B.email) +
                     '<div class="social">' +
-                        '<a href="mailto:' + B.email + '" aria-label="E-mail">' + App.icon('mail', 15) + '</a>' +
-                        '<a href="tel:' + B.phone.replace(/\s/g, '') + '" aria-label="Phone">' + App.icon('phone', 15) + '</a>' +
+                        (App.site.isPending(B.email) ? '' :
+                            '<a href="mailto:' + App.utils.escape(B.email) + '" aria-label="E-mail">' + App.icon('mail', 15) + '</a>') +
+                        (App.site.isPending(B.phone) ? '' :
+                            '<a href="tel:' + App.utils.escape(B.phone.replace(/\s/g, '')) + '" aria-label="Phone">' + App.icon('phone', 15) + '</a>') +
                         '<a href="contact-us.html" aria-label="Contact">' + App.icon('globe', 15) + '</a>' +
                     '</div>' +
                 '</div>' +
@@ -339,8 +392,7 @@
                     '<h4 class="footer__title">' + t('contact.pageTitle', 'Контакты') + '</h4>' +
                     '<div class="footer__contact-row">' + App.icon('pin', 15) +
                         '<span style="color:rgba(255,255,255,.68)">' + App.utils.escape(B.address) + '</span></div>' +
-                    '<div class="footer__contact-row">' + App.icon('mail', 15) +
-                        '<a href="mailto:' + B.email + '">' + B.email + '</a></div>' +
+                    contactRow('mail', 'mail', B.email) +
                     '<div class="footer__contact-row">' + App.icon('clock', 15) +
                         '<span style="color:rgba(255,255,255,.68)">' + t('footer.support247', '') + '</span></div>' +
                     '<a class="btn btn--ghost btn--sm mt-3" href="contact-us.html">' +
@@ -349,7 +401,7 @@
             '</div>' +
 
             '<div class="container footer__bottom">' +
-                '<span>' + t('footer.copyright', '© FORES') + '</span>' +
+                '<span>' + t('footer.copyright', '© SIEGER') + '</span>' +
                 '<span class="footer__made">' +
                     'Made by ' +
                     '<a href="https://aycom.kz" target="_blank" rel="noopener noreferrer">AYCOM</a>' +
@@ -717,8 +769,11 @@
                                '<span class="search__item-name t-clamp-2">' + App.utils.escape(p.Name) + '</span>' +
                                (p.Sku ? '<span class="t-xs t-dim t-mono">' + App.utils.escape(p.Sku) + '</span>' : '') +
                            '</span>' +
+                           /* FAZ 38 — satış birimli üründe "27 093,00 ₸ / Комплект 33 кг" (tek satır). */
                            '<span class="search__item-price">' +
-                               (App.model.isPriceHidden(p) ? '—' : App.fmt.price(p.Price)) +
+                               (App.model.isPriceHidden(p)
+                                   ? '—'
+                                   : App.utils.escape(App.su.unitPriceText(p) || App.fmt.price(p.Price))) +
                            '</span>' +
                        '</a>';
             }).join('') +

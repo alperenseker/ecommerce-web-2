@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Контакты — FORES</title>
-    <meta name="description" content="Телефон, адрес и форма обратной связи FORES.">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <title>Контакты — SIEGER</title>
+    <meta name="description" content="Телефон, адрес и форма обратной связи SIEGER.">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/logo/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/img/logo/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/logo/favicon-180.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/main.css?v=20261112a">
 </head>
 
 <body data-page="content" data-title-i18n="meta.contact">
@@ -35,21 +37,23 @@
     </section>
 
     <section class="contact-grid mb-8">
-        <div class="contact-box">
+        <div class="contact-box" hidden>
             <span class="contact-box__icon">
                 <i class="ico"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 7l-10 6L2 7"/></svg></i>
             </span>
             <h4 data-i18n="contact.emailLabel">E-mail</h4>
-            <p><a href="mailto:info@fores.kz">info@fores.kz</a></p>
+            <!-- Değer App.config.BRAND.email'den (pages/content.js); boşken kutu
+                 gizli kalır (2026-11-12 kararı). Fores'in adresi kaldırıldı. -->
+            <p data-contact="email"></p>
         </div>
 
-        <div class="contact-box">
+        <div class="contact-box" hidden>
             <span class="contact-box__icon">
                 <i class="ico"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3v5ZM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v5Z"/></svg></i>
             </span>
             <h4 data-i18n="contact.phoneLabel">Телефон</h4>
-            <p class="mb-0"><a href="tel:+77010570316">Fores: +7 701 057 0316</a></p>
-            <p><a href="tel:+77010570302">Foral: +7 701 057 0302</a></p>
+            <!-- Değer App.config.BRAND.phone'dan; boşken kutu gizli. Fores/Foral hatları kaldırıldı. -->
+            <p data-contact="phone"></p>
         </div>
 
         <div class="contact-box">
@@ -128,6 +132,6 @@
 
 <div id="site-footer"></div>
 
-<script src="assets/js/loader.js"></script>
+<script src="assets/js/loader.js?v=20261112a"></script>
 </body>
 </html>

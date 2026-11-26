@@ -12,8 +12,21 @@
 (function (App) {
     'use strict';
 
-    var DB_NAME  = 'novatech_cache';
+    /* Ad `novatech_cache`ten DEĞİŞTİRİLDİ: o adla saklanan katalog
+       bu sitenin API-1'e (Fores kataloğu) bağlı eski sürümünden
+       kalmış olabilir. Aynı kökte yayınlanırsa eski kayıt ilk
+       boyamada BAŞKA ÖRNEĞİN ürünlerini/fiyatlarını gösterirdi
+       (eşitleme süresi dolana kadar). Yeni ad = temiz başlangıç;
+       eski veritabanı açılışta bir kez silinir (aşağıda). */
+    var DB_NAME  = 'sieger_cache';
+    var LEGACY_DB_NAMES = ['novatech_cache'];
     var STORE    = 'cache';
+
+    try {
+        if (window.indexedDB) {
+            LEGACY_DB_NAMES.forEach(function (name) { indexedDB.deleteDatabase(name); });
+        }
+    } catch (e) { /* desteklenmiyorsa sorun değil */ }
 
     /* Sürüm artırıldığında onupgradeneeded eski depoyu SİLİP yeniden
        kurar. Bayat/bozuk bir önbelleği taşımanın anlamı yok: veri

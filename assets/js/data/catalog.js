@@ -11,8 +11,10 @@
    başlatılır; değişiklik varsa 'catalog:synced' olayı yayınlanır ve
    açık ekran kendini tazeler. Kullanıcı bekletilmez.
 
-   ÖNEMLİ: Fiyatlar kullanıcıya özeldir (fiyat kategorisi). Bu yüzden
-   giriş/çıkışta önbellek App.store.clearUserData() ile atılır.
+   ÖNEMLİ: Fiyatlar ve görünürlük kullanıcıya özeldir (fiyat listesi,
+   özel fiyat, gizli/"her zaman göster" ürünler — FAZ 42). Bu yüzden
+   giriş/çıkışta ve bayat oturumda önbelleğin TAMAMI (sessionStorage +
+   IndexedDB) C.clearCache() ile atılır ve bu BEKLENİR (FAZ 35).
    ============================================================ */
 
 (function (App) {
@@ -26,14 +28,22 @@
 
     var _syncTimer = null;
 
+    /* Uçuştaki eşitleme. Temizlikten SONRA biterse eski oturumun
+       token'ıyla indirdiği listeyi önbelleğe yazar; clearCache onu
+       bekleyip bir kez daha temizler. */
+    var _syncPromise = null;
+
     /* ============================================================
        API'DEN ÇEKME
        ============================================================ */
 
     /**
      * Ürünleri sunucudan çeker.
-     * `userId` gönderilir çünkü sunucu FİYATI KULLANICIYA GÖRE
-     * çözüyor (bayi fiyat kategorisi). Misafirde liste fiyatı gelir.
+     * Sunucu fiyatı ve görünürlüğü KULLANICIYA GÖRE çözüyor (fiyat
+     * listesi, özel fiyat, gizli ürünler). FAZ 35: kimlik YALNIZ
+     * token'dan okunur; sorgudaki `userId` yok sayılır (eşleşmezse
+     * sunucu uyarı loglar). Bu yüzden gönderilmez — token http
+     * katmanında her istekte zaten var. Misafirde liste fiyatı gelir.
      */
     C.fetchProducts = async function (filters) {
         filters = filters || {};
@@ -50,9 +60,6 @@
         if (filters.isActive === true || filters.isActive === false) {
             params.isActive = filters.isActive;
         }
-
-        var userId = App.store.get(App.keys.USER_ID);
-        if (userId) params.userId = userId;
 
         return App.api.products.getAll(params);
     };
@@ -162,9 +169,15 @@
 
         /* Kullanıcının GÖRDÜĞÜ alanlar. Tam nesne karşılaştırması
            LastSyncedAt gibi alanlar yüzünden her turda "değişti" derdi. */
+        /* FAZ 36/42 alanları da izlenir: admin yalnız adet kuralını
+           (min/adım) ya da özel fiyat işaretini değiştirdiğinde fiyat
+           aynı kalabilir; izlenmezse ekran eski kuralı gösterirdi. */
         var watched = ['Name', 'Price', 'OldPrice', 'StockAmount', 'StockStatus',
                        'MainImage', 'Images', 'IsActive', 'IsFeatured',
-                       'IsNewArrival', 'AverageRating', 'TotalReviewCount'];
+                       'IsNewArrival', 'AverageRating', 'TotalReviewCount',
+                       'HasPrice', 'PriceHidden', 'BasePrice', 'StockBaseQty',
+                       'SalesUnitName', 'SalesUnitSize', 'BaseUnit', 'MinOrderQty',
+                       'OrderStep', 'UnitsPerPallet', 'HasSpecialPrice', 'ForceVisible'];
 
         (newList || []).forEach(function (np) {
             var op = oldMap.get(np.ProductId);
@@ -189,7 +202,14 @@
      * 'catalog:synced' yayınlar.
      * @param {boolean} force true ise süre kontrolü yapılmaz
      */
-    C.sync = async function (force) {
+    C.sync = function (force) {
+        var run = syncOnce(force);
+        _syncPromise = run;
+        run.then(function () { if (_syncPromise === run) _syncPromise = null; });
+        return run;
+    };
+
+    async function syncOnce(force) {
         try {
             if (!force && !(await App.idb.isSyncNeeded())) return false;
 
@@ -241,7 +261,7 @@
             console.warn('Katalog eşitlenemedi:', e && e.message);
             return false;
         }
-    };
+    }
 
     /**
      * Kullanıcı beklemesin: eşitleme daima "ateşle ve unut".
@@ -395,12 +415,69 @@
         return (res.success && res.data) ? res.data : null;
     };
 
-    /** Önbelleği tümden at (çıkış / dil değişimi sonrası). */
+    /**
+     * Önbelleği tümden at — FAZ 35 (giriş, çıkış, kullanıcı değişimi,
+     * bayat oturum). Liste kullanıcının FİYAT LİSTESİYLE ve GÖRÜNÜRLÜK
+     * kurallarıyla önbelleğe alındığı için paylaşılan bilgisayarda
+     * sonraki oturum öncekinin fiyatlarını / gizli kataloğunu görmesin.
+     *
+     * Sayfa yönlenmeden önce BEKLENMELİ (IndexedDB işlemi yarıda
+     * kalmasın). Hiç reddetmez, en geç 2 sn'de çözülür: giriş/çıkış
+     * önbellek yüzünden takılmamalı.
+     * @returns {Promise<void>}
+     */
     C.clearCache = function () {
-        C.products = []; C.categories = []; C.loaded = false;
-        App.store.session.remove(App.keys.CACHE_PRODUCTS);
-        App.store.session.remove(App.keys.CACHE_CATEGORIES);
-        App.idb.clear();
+        C.stopAutoSync();
+
+        function wipe() {
+            C.products = []; C.categories = []; C.loaded = false;
+            App.store.session.remove(App.keys.CACHE_PRODUCTS);
+            App.store.session.remove(App.keys.CACHE_CATEGORIES);
+            return App.idb.clear();
+        }
+
+        var work = (async function () {
+            await wipe();
+            /* Uçuştaki eşitleme eski token'la indirdiğini temizlikten
+               SONRA yazar → bitmesini bekleyip bir kez daha temizle. */
+            if (_syncPromise) {
+                try { await _syncPromise; } catch (e) {}
+                await wipe();
+            }
+        })().catch(function () {});
+
+        return Promise.race([work, App.utils.sleep(2000)]);
+    };
+
+    /**
+     * FAZ 44 — sunucu bu ürünün artık bu müşteriye GÖRÜNMEDİĞİNİ
+     * söyledi (sepete ekleme / detay 404). Önbellekten çizilen kart
+     * bir daha "sepete ekle" sunmasın: bellekten hemen düşer, liste
+     * arka planda sunucudan tazelenir (açık ekran catalog:synced ile
+     * kendini yeniden çizer; IndexedDB ve sessionStorage da yazılır).
+     */
+    C.forget = function (productId) {
+        var id = String(productId);
+        var keep = function (p) { return String(p.ProductId) !== id; };
+        var before = C.products.length;
+
+        C.products = C.products.filter(keep);
+
+        /* Önbellekler de hemen süzülür: tazeleme "değişiklik yok"
+           derse (bellek zaten süzüldü) onları yeniden yazmaz. */
+        var cached = App.store.session.getCache(App.keys.CACHE_PRODUCTS);
+        if (cached) App.store.session.setCache(App.keys.CACHE_PRODUCTS, cached.filter(keep));
+        App.idb.getProducts().then(function (list) {
+            if (list) return App.idb.setProducts(list.filter(keep));
+        }).catch(function () {});
+
+        if (C.products.length !== before) {
+            App.bus.emit(App.bus.EVENTS.CATALOG_SYNCED, {
+                products: C.products, categories: C.categories,
+                productsChanged: true, categoriesChanged: false
+            });
+        }
+        C.sync(true).catch(function () {});
     };
 
     App.catalog = C;

@@ -50,6 +50,7 @@
         var stock  = App.model.stock(product);
         var inWish = App.wishlist.has(id);
         var inCmp  = App.compare.has(id);
+        var rulesText = App.su.rulesText(product);
 
         var wrap = App.utils.el('article', { class: 'pcard', dataset: { productId: id } });
 
@@ -115,15 +116,18 @@
             '<div class="pcard__cart">' +
                 /* Sakin düğme: bir rafta 14 dolu indigo düğme yan yana
                    gelince ekran bağırıyor. Üzerine gelince markanın
-                   rengine dönüyor. */
+                   rengine dönüyor.
+                   FAZ 38 — adet verilmez: satış birimli üründe sepet
+                   servisi minimum adedi ekler, kural kartın altında. */
                 '<button type="button" class="btn btn--ghost btn--sm btn--block" ' +
                         'data-act="add-to-cart" data-id="' + id + '"' +
                         (stock.canOrder ? '' : ' disabled') + '>' +
                     App.icon('cart', 13) +
                     '<span>' + (stock.canOrder
                         ? App.t('shopList.card.addToCart', 'В корзину')
-                        : App.t('shopList.card.outOfStock', 'Нет в наличии')) + '</span>' +
+                        : App.model.cannotAddText(stock)) + '</span>' +
                 '</button>' +
+                (rulesText ? '<div class="su-rules t-center mt-1">' + App.utils.escape(rulesText) + '</div>' : '') +
             '</div>';
 
         return wrap;

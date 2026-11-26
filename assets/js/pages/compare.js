@@ -91,14 +91,20 @@ App.definePage('compare', async function (ctx) {
             ComparisonItemId: item.ComparisonItemId
         });
 
-        /* Katalogda yoksa kalemin taşıdığı alanlar kullanılır. */
+        /* Katalogda yoksa kalemin taşıdığı alanlar kullanılır.
+           FAZ 36/42: kalem satış birimi alanlarını, fiyat bağlamını
+           (HasPrice / PriceHidden) ve özel fiyat işaretini de taşıyor. */
         if (!product) {
             merged.Name  = item.ProductName || item.Name || '';
             merged.Price = item.ProductPrice !== undefined ? item.ProductPrice : item.Price;
-            merged.Slug  = item.ProductSlug || '';
+            merged.Slug  = item.ProductSlug || item.Slug || '';
             merged.MainImage = item.ProductImage || item.MainImage;
             merged.StockAmount = item.StockAmount;
             merged.StockStatus = item.StockStatus;
+            ['OldPrice', 'HasPrice', 'PriceHidden', 'SalesUnitName', 'SalesUnitSize', 'BaseUnit',
+             'MinOrderQty', 'OrderStep', 'BasePrice', 'HasSpecialPrice'].forEach(function (key) {
+                if (item[key] !== undefined) merged[key] = item[key];
+            });
         }
         return merged;
     }
@@ -176,8 +182,11 @@ App.definePage('compare', async function (ctx) {
                                    'data-act="add-to-cart" data-id="' + p.ProductId + '"' +
                                    (stock.canOrder ? '' : ' disabled') + '>' +
                                App.icon('cart', 13) +
-                               '<span>' + App.t('shopList.card.addToCart', 'В корзину') + '</span>' +
+                               '<span>' + (stock.canOrder
+                                   ? App.t('shopList.card.addToCart', 'В корзину')
+                                   : App.model.cannotAddText(stock)) + '</span>' +
                            '</button>' +
+                           (App.su.rulesText(p) ? '<div class="su-rules">' + App.utils.escape(App.su.rulesText(p)) + '</div>' : '') +
                            '<button class="btn btn--plain btn--sm" type="button" ' +
                                    'data-act="compare-remove" data-item-id="' + p.ComparisonItemId + '">' +
                                App.icon('trash', 13) +

@@ -125,6 +125,35 @@
     text-overflow: ellipsis;
 }
 
+/* ---- LOGO: görsel (SIEGER — iki şirketin logosu yan yana, K2.14) ----
+   Künye (slogan) yok; ::after boş kalıp boşluk açmasın. */
+.logo--image::after { display: none; }
+/* .logo dikey bir flex kutusu: varsayılan `align-items: stretch` görseli
+   kabın (alt bilgide sütunun) tüm genişliğine YAYIYORDU (1496:480 oranı
+   bozuluyordu). Görsel yalnız yüksekliğe göre ölçeklenir, oran korunur. */
+.logo--image { align-items: flex-start; }
+.logo__img {
+    display: block;
+    align-self: flex-start;
+    height: 46px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+/* Koyu alt bilgi: beyaz yazılı SAYDAM logo (K2.27 — plaka yok).
+   Altındaki tanıtım paragrafı boşken (registerDesc) iletişim satırlarına
+   yapışmasın: paragrafın bıraktığı boşluk kadar alt boşluk. */
+.logo--dark { margin-bottom: var(--sp-4); }
+.logo--dark .logo__img { height: 40px; }
+
+@media (max-width: 640px) {
+    .logo__img { height: 34px; }
+}
+
+/* Henüz belli olmayan değerin (telefon, e-posta) görünür yer tutucusu. */
+.pending { color: var(--warn); font-weight: 600; }
+.footer .pending { color: var(--star); }
+
 /* ---- ARAMA: yumuşak hap ---- */
 .search {
     position: relative;
@@ -796,4 +825,11 @@
     .footer__top { grid-template-columns: 1fr; }
     h1 { font-size: var(--fs-2xl); }
     .utilbar__links { gap: var(--sp-3); }
+    /* Künye şeridi dar ekranda taşıyordu (375 px'te sayfa 496 px'e — yer
+       tutucuyla 540 px'e — yayılıyor, mobil tarayıcı bütün sayfayı
+       küçültüyordu): "Есть вопрос?…" etiketi düşer, simge + numara kalır,
+       sığmazsa numara kırpılır. */
+    .utilbar__phone { min-width: 0; overflow: hidden; }
+    .utilbar__phone > span:not(.pending) { display: none; }
+    .utilbar__phone b, .utilbar__phone .pending { overflow: hidden; text-overflow: ellipsis; }
 }

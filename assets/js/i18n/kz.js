@@ -279,5 +279,22 @@ App.i18n.register('kz', {
         title: 'Бет табылмады',
         text: 'Іздеген бет жылжытылған немесе жойылған болуы мүмкін.',
         cta: 'Басты бетке'
+    },
+
+    /* FAZ 44 — sepette kalmış ama artık görünmeyen kalemler (kaynak
+       projede sessizce silinir; burada gösterilir, kullanıcı siler). */
+    customerRules: {
+        unavailableInCartNote: 'Бұл тауар енді қолжетімсіз. Оны себеттен жойыңыз.',
+        unavailableCheckout: 'Бұл тауарлар енді қолжетімсіз: {names}. Тапсырыс беру үшін оларды себеттен жойыңыз.'
+    },
+
+    /* Henüz belli olmayan değerlerin görünür yer tutucuları (K2.17, DURUM.md §4). */
+    site: {
+        pending: {
+            phone: '[телефон нақтылануда]',
+            email: '[e-mail нақтылануда]',
+            site: '[сайт мекенжайы нақтылануда]'
+        },
+        contactPending: 'Қолдау қызметінің электрондық поштасы әлі жарияланбаған. Аккаунтқа кіріп, қолдау чатына жазыңыз.'
     }
 });

@@ -22,16 +22,20 @@ App.definePage('home', async function (ctx) {
        renderHero()'dan SONRA tanımlanırsa çağrı anında `undefined`
        olur. Bu yüzden en başta duruyor.
        ------------------------------------------------------------ */
+    /* SIEGER: sahneler iki şirketin logosuyla (Fores'in fabrika
+       fotoğrafları ve ürün sloganları kaldırıldı; metinler
+       i18n/*.site.js'te yalnız şirket adları — uydurma iddia yok).
+       `logo: true` görseli kırpmadan, açık zeminde gösterir. */
     var SLIDES = [
-        { key: 'home.slider1', image: 'assets/img/about/about-us1.webp', href: 'shop.html?sort=date' },
-        { key: 'home.slider2', image: 'assets/img/about/about-us2.webp', href: 'shop.html' },
-        { key: 'home.slider3', image: 'assets/img/about/about-us3.webp', href: 'shop.html?sort=popularity' }
+        { key: 'home.slider1', image: 'assets/img/logo/sieger-kunststoff.jpg', href: 'shop.html', logo: true },
+        { key: 'home.slider2', image: 'assets/img/logo/sieger-systems.jpg', href: 'shop.html', logo: true },
+        { key: 'home.slider3', image: 'assets/img/logo/sieger-logolar-saydam.png', href: 'shop.html?sort=date', logo: true }
     ];
 
     /* Her blokta TAM 5 ürün; gerisi "daha fazla" düğmesinin ardında. */
     var ROW_SIZE = 5;
 
-    /* Ana kategori bloğu sayısı üst sınırı (Fores, Foral, Stark…). */
+    /* Ana kategori bloğu sayısı üst sınırı (1C kaynakları: Sieger Kunststoff, Sieger Systems…). */
     var CATEGORY_ROWS = 4;
 
     var heroBox = document.getElementById('hero');
@@ -112,7 +116,7 @@ App.definePage('home', async function (ctx) {
                                (i === 0 ? statsHtml() : '') +
                            '</div>' +
 
-                           '<div class="hero__visual">' +
+                           '<div class="hero__visual' + (slide.logo ? ' hero__visual--logo' : '') + '">' +
                                '<img src="' + slide.image + '" alt="" width="720" height="460"' +
                                     (i === 0 ? '' : ' loading="lazy"') + '>' +
                            '</div>' +
@@ -207,7 +211,7 @@ App.definePage('home', async function (ctx) {
         blocks.push(row('top', t('home.topFeatured', 'Лучшие товары'),
                         'shop.html?sort=popularity', App.catalog.bestSellers(ROW_SIZE)));
 
-        /* ANA kategoriler (1C kaynakları: Fores, Foral, …) — alt dalları
+        /* ANA kategoriler (1C kaynakları: Sieger Kunststoff, Sieger Systems) — alt dalları
            tek tek listelemek yerine üst düğümü gösteriyoruz; müşteri
            markayı arıyor, alt dalı mağaza sayfasında seçiyor. */
         mainCategories(CATEGORY_ROWS).forEach(function (cat) {

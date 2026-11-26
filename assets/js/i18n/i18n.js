@@ -21,6 +21,25 @@
     var dicts = {};        // { tr: {...}, ru: {...} }
     var current = null;
 
+    /** Etkin dildeki ham değer (nokta yazımı); yoksa undefined. */
+    function rawValue(key) {
+        var value = dicts[current];
+        var parts = String(key).split('.');
+        for (var i = 0; value && i < parts.length; i++) {
+            value = value[parts[i]];
+            if (value === undefined) break;
+        }
+        return value;
+    }
+
+    /** {site} yer tutucusunun karşılığı: alan adı ya da dilin "belirtilecek" metni. */
+    function siteText() {
+        var host = App.site && typeof App.site.host === 'function' ? App.site.host() : '';
+        if (host) return host;
+        var pending = rawValue('site.pending.site');
+        return typeof pending === 'string' ? pending : '[site address to be confirmed]';
+    }
+
     /**
      * İki sözlüğü derinlemesine birleştirir. Dizi ve metinler
      * doğrudan değiştirilir; yalnız düz nesneler iç içe girer.
@@ -88,14 +107,7 @@
          * ekranda boşluk yerine ne eksik olduğu görünür.
          */
         t: function (key, fallback, params) {
-            var dict = dicts[current];
-            var value = dict;
-            var parts = String(key).split('.');
-
-            for (var i = 0; dict && i < parts.length; i++) {
-                value = value ? value[parts[i]] : undefined;
-                if (value === undefined) break;
-            }
+            var value = rawValue(key);
 
             var out = (typeof value === 'string')
                 ? value
@@ -107,6 +119,14 @@
                 Object.keys(params).forEach(function (name) {
                     out = out.split('{' + name + '}').join(params[name]);
                 });
+            }
+
+            /* K2.17 — sitenin alan adı TEK ayarda (App.config.SITE_BASE).
+               Yasal metinler "{site}" yazar; ayar boşken görünür bir yer
+               tutucu basılır, alan adı belli olunca metinlere dokunulmaz. */
+            if (typeof out === 'string' && out.indexOf('{site}') !== -1 &&
+                !(params && params.site !== undefined)) {
+                out = out.split('{site}').join(siteText());
             }
             return out;
         },

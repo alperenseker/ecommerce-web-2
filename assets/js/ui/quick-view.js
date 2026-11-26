@@ -35,7 +35,18 @@
         try {
             var res = await App.api.products.getById(id);
             if (res.success && res.data) full = res.data;
-        } catch (e) { /* önbellekteki kayıtla devam */ }
+        } catch (e) {
+            /* FAZ 44 — önbellekteki kart bayat: ürün bu müşteriden
+               gizlendi (404). Pencere "sepete ekle" SUNMAZ, kart düşer. */
+            var gone = App.rules.productUnavailableMessage(e, true);
+            if (gone) {
+                App.catalog.forget(id);
+                modal.el.querySelector('.modal__body').innerHTML =
+                    '<p class="t-mut">' + App.utils.escape(gone) + '</p>';
+                return;
+            }
+            /* başka hata: önbellekteki kayıtla devam */
+        }
 
         if (!full) {
             modal.el.querySelector('.modal__body').innerHTML =
@@ -43,12 +54,15 @@
             return;
         }
 
+        /* Liste kaydındaki alanlar korunur, sunucunun tam kaydı üstüne biner. */
+        if (product && full !== product) full = Object.assign({}, product, full);
+
         modal.el.querySelector('.modal__body').innerHTML = bodyHtml(full);
 
         /* Varyantlar en son gelir; kutusu hazırdır, sessizce dolar. */
         var data = await App.variants.load(id);
         var box = modal.el.querySelector('#qv-variants');
-        if (data && box) box.innerHTML = App.variants.html(data);
+        if (data && box) box.innerHTML = App.variants.html(data, full);
 
         App.card.refreshStates(modal.el);
     });
@@ -61,6 +75,12 @@
 
         var inWish = App.wishlist.has(p.ProductId);
         var inCmp  = App.compare.has(p.ProductId);
+
+        /* FAZ 38 — stok ambalaj cinsinden, adet kutusu min/adım kurallı,
+           kutunun altında "мин. 24 · шаг 24". */
+        var suStock = App.su.stockText(p);
+        var rules = App.su.qtyRules(p);
+        var rulesText = App.su.rulesText(p);
 
         return '<div class="pdetail" style="border:0;padding:0;gap:var(--sp-5)">' +
 
@@ -84,8 +104,9 @@
                                '<span class="dot dot--' + (stock.level === 'in' ? 'ok' :
                                     stock.level === 'pre' ? 'warn' : 'err') + '"></span>' +
                                App.utils.escape(stock.label) +
-                               (stock.inStock ? ' · ' + App.fmt.number(stock.amount, 0) + ' ' +
-                                                t('stock.pieces', 'шт') : '') +
+                               (stock.inStock ? ' · ' + (suStock
+                                   ? App.utils.escape(suStock)
+                                   : App.fmt.number(stock.amount, 0) + ' ' + t('stock.pieces', 'шт')) : '') +
                            '</span>' +
                        '</div>' +
 
@@ -101,7 +122,8 @@
                            '<div class="qty">' +
                                '<button class="qty__btn" type="button" data-act="qty-dec" data-target="qv-qty">' +
                                    App.icon('minus', 13) + '</button>' +
-                               '<input class="qty__input" id="qv-qty" type="number" value="1" min="1" max="100000">' +
+                               '<input class="qty__input" id="qv-qty" type="number" max="100000"' +
+                                      App.su.inputAttrs(rules) + '>' +
                                '<button class="qty__btn" type="button" data-act="qty-inc" data-target="qv-qty">' +
                                    App.icon('plus', 13) + '</button>' +
                            '</div>' +
@@ -112,7 +134,7 @@
                                App.icon('cart', 14) +
                                '<span>' + (stock.canOrder
                                    ? t('shopList.card.addToCart', 'В корзину')
-                                   : t('shopList.card.outOfStock', 'Нет в наличии')) + '</span>' +
+                                   : App.model.cannotAddText(stock)) + '</span>' +
                            '</button>' +
 
                            '<button class="btn btn--ghost btn--icon' + (inWish ? ' is-active' : '') + '" ' +
@@ -125,6 +147,8 @@
                                    'title="' + t('shopList.card.compare', 'Сравнить') + '">' +
                                App.icon('compare', 15) + '</button>' +
                        '</div>' +
+
+                       (rulesText ? '<div class="su-rules mt-2">' + App.utils.escape(rulesText) + '</div>' : '') +
 
                        '<a class="btn btn--link mt-3" href="' + App.model.url(p) + '">' +
                            t('shopList.modal.goToDetail', 'Перейти к товару') +

@@ -14,9 +14,30 @@
 
 App.definePage('content', function () {
 
+    fillContacts();
     bindFaq();
     bindContactForm();
     bindDeleteAccount();
+
+    App.bus.on(App.bus.EVENTS.LANG_CHANGED, fillContacts);
+
+    /* ------------------------------------------------------------
+       İLETİŞİM KUTULARI (iletişim sayfası)
+       Telefon / e-posta App.config.BRAND'dan. Değer henüz belli
+       değilse kutunun tamamı gizli kalır (HTML'de `hidden` ile gelir;
+       2026-11-12 kararı: "boşken hiç görünmesin"); değer girilince
+       kutu açılır ve bağlantı kurulur (App.layout.contactLink).
+       ------------------------------------------------------------ */
+    function fillContacts() {
+        var B = App.config.BRAND;
+        App.utils.$$('[data-contact]').forEach(function (node) {
+            var value = node.getAttribute('data-contact') === 'phone' ? B.phone : B.email;
+            var box = node.closest('.contact-box') || node;
+            box.hidden = App.site.isPending(value);
+            node.innerHTML = box.hidden ? '' : App.layout.contactLink(
+                node.getAttribute('data-contact') === 'phone' ? 'tel' : 'mail', value);
+        });
+    }
 
     /* ------------------------------------------------------------
        SSS AKORDİYONU
@@ -64,9 +85,17 @@ App.definePage('content', function () {
             }
 
             /* Girişsiz ziyaretçinin mesajı sunucuda kullanıcıya
-               bağlanamaz; e-posta bağlantısına yönlendirilir. */
+               bağlanamaz; e-posta bağlantısına yönlendirilir.
+               Destek e-postası henüz belli değilse (yer tutucu) boş
+               alıcılı e-posta açılmaz; ziyaretçiye giriş yapıp destek
+               sohbetini kullanması söylenir. */
             if (!App.auth.isLoggedIn()) {
-                var subject = encodeURIComponent('Fores — ' + name);
+                if (App.site.isPending(App.config.BRAND.email)) {
+                    App.toast.warning(App.t('site.contactPending',
+                        'The support e-mail address has not been published yet. Please sign in and write to us in the support chat.'));
+                    return;
+                }
+                var subject = encodeURIComponent(App.config.BRAND.name + ' — ' + name);
                 var body = encodeURIComponent(message + '\n\n' + email);
                 window.location.href = 'mailto:' + App.config.BRAND.email +
                                        '?subject=' + subject + '&body=' + body;
@@ -131,8 +160,13 @@ App.definePage('content', function () {
             }
 
             btn.classList.remove('is-loading');
+            if (App.site.isPending(App.config.BRAND.email)) {
+                App.toast.warning(App.t('site.contactPending',
+                    'The support e-mail address has not been published yet. Please sign in and write to us in the support chat.'));
+                return;
+            }
             window.location.href = 'mailto:' + App.config.BRAND.email +
-                '?subject=' + encodeURIComponent('Account deletion request') +
+                '?subject=' + encodeURIComponent(App.config.BRAND.name + ' — Account deletion request') +
                 '&body=' + encodeURIComponent(text);
         });
     }

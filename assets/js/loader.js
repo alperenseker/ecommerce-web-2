@@ -26,8 +26,10 @@
     var self = document.currentScript;
     var base = self ? self.src.replace(/loader\.js.*$/, '') : 'assets/js/';
 
-    /* Önbellek kırıcı: dosya değiştiğinde bu sayı artırılır. */
-    var VERSION = '1.0.0';
+    /* Önbellek kırıcı: dosya değiştiğinde bu sayı artırılır.
+       HTML'deki loader.js / main.css bağlantıları ve main.css'in
+       @import'ları da AYNI değeri taşır (hepsi birlikte artırılır). */
+    var VERSION = '20261112a';
 
     /* ---------- ÇEKİRDEK (sıra önemlidir) ---------- */
     var CORE = [
@@ -55,6 +57,12 @@
         'i18n/en.data.js',
         'i18n/ru.data.js',
         'i18n/kz.data.js',
+        /* EN SON: bu örneğe (SIEGER) özel metinler — marka, iletişim,
+           yasal metinler. Kaynak projenin Fores'e özgü cümlelerini ezer. */
+        'i18n/tr.site.js',
+        'i18n/en.site.js',
+        'i18n/ru.site.js',
+        'i18n/kz.site.js',
 
         /* 4. arayüz temelleri (servisler bildirim/pencere kullanır) */
         'ui/icons.js',
@@ -63,6 +71,9 @@
 
         /* 5. veri katmanı */
         'data/product-model.js',
+        'data/permissions.js',      /* stoksuz sipariş yetkisi — şirket başına */
+        'data/sales-unit.js',       /* FAZ 38 — satış birimi (ambalaj) */
+        'data/customer-rules.js',   /* FAZ 44 — müşteri × ürün kuralları */
         'data/idb.js',
         'data/catalog.js',
 

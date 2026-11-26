@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Koyu çakıl-yeşil kare + amber "F": başlık şeridiyle aynı palet,
-       sekmede küçükken de ayırt edilebilsin diye tek harf. -->
-  <rect width="32" height="32" rx="6" fill="#0B2F2C"/>
-  <path d="M11 8h11v4h-7v4h6v4h-6v6h-4V8Z" fill="#FFB703"/>
-</svg>

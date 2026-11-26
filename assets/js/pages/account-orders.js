@@ -217,6 +217,8 @@
             var qty = parseInt(f(item, 'quantity'), 10) || 1;
             var line = parseFloat(f(item, 'totalPrice'));
             if (isNaN(line)) line = (parseFloat(f(item, 'unitPrice')) || 0) * qty;
+            /* FAZ 38 — sipariş anının kopyası: "24 × Комплект 29,7 кг (712,8 кг)". */
+            var unitLine = App.su.lineText(item);
 
             return '<div class="co-line">' +
                        '<img src="' + App.utils.escape(img) + '" alt="" loading="lazy" ' +
@@ -224,7 +226,12 @@
                        '<div class="grow">' +
                            '<div class="t-clamp-2 t-sm">' +
                                App.fmt.preserveSpaces(App.utils.escape(f(item, 'productName') || '')) + '</div>' +
-                           '<div class="co-line__qty">' + qty + ' × ' + App.fmt.price(f(item, 'unitPrice')) + '</div>' +
+                           '<div class="co-line__qty">' +
+                               (unitLine
+                                   ? App.utils.escape(unitLine) + ' · ' + App.fmt.price(f(item, 'unitPrice')) +
+                                     ' / ' + App.utils.escape(App.su.info(item).name)
+                                   : qty + ' × ' + App.fmt.price(f(item, 'unitPrice'))) +
+                           '</div>' +
                        '</div>' +
                        '<span class="co-line__sum">' + App.fmt.price(line) + '</span>' +
                    '</div>';
